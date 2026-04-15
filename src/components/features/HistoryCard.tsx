@@ -13,6 +13,7 @@ interface HistoryCardProps {
 
 export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: HistoryCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
   const pdf = resume.resume_pdfs?.[0] ?? null
   const isPdf = resume.format === 'pdf'
   const createdAt = new Date(resume.created_at)
@@ -222,14 +223,28 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
 
             {pdf && (
               <button
-                onClick={() => {
-                  const a = document.createElement('a')
-                  a.href = pdf.public_url
-                  a.download = resume.filename || 'tailored-resume.pdf'
-                  document.body.appendChild(a)
-                  a.click()
-                  document.body.removeChild(a)
+                onClick={async () => {
+                  if (isDownloading) return
+                  setIsDownloading(true)
+                  try {
+                    const res = await fetch(pdf.public_url)
+                    const blob = await res.blob()
+                    const blobUrl = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = blobUrl
+                    a.download = resume.filename || 'tailored-resume.pdf'
+                    document.body.appendChild(a)
+                    a.click()
+                    document.body.removeChild(a)
+                    URL.revokeObjectURL(blobUrl)
+                  } catch {
+                    // Fallback: open in new tab if fetch fails
+                    window.open(pdf.public_url, '_blank')
+                  } finally {
+                    setIsDownloading(false)
+                  }
                 }}
+                disabled={isDownloading}
                 aria-label="Download PDF"
                 title="Download PDF"
                 className="history-action-btn"
@@ -243,9 +258,15 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
                   color: 'var(--color-text-muted)',
                   transition:
                     'background var(--transition-interactive), color var(--transition-interactive)',
+                  cursor: isDownloading ? 'wait' : 'pointer',
+                  opacity: isDownloading ? 0.5 : 1,
                 }}
               >
-                <Download size={16} />
+                {isDownloading ? (
+                  <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                ) : (
+                  <Download size={16} />
+                )}
               </button>
             )}
 
