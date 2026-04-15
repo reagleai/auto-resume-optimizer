@@ -4,6 +4,44 @@ import { useToast } from '@/hooks/useToast'
 import { WEBHOOK_TIMEOUT_MS } from '@/lib/constants'
 import type { WebhookPayload, WebhookResponse } from '@/types'
 
+/** Minimum time between consecutive webhook calls (ms) */
+const COOLDOWN_MS = 5000
+
+/**
+ * Validate that a webhook URL is safe to call.
+ * Enforces HTTPS and blocks private/internal network addresses.
+ */
+function validateWebhookUrl(urlStr: string): { valid: boolean; error?: string } {
+  try {
+    const url = new URL(urlStr)
+
+    // Enforce HTTPS only
+    if (url.protocol !== 'https:') {
+      return { valid: false, error: 'Only HTTPS webhook URLs are supported for secure data transmission.' }
+    }
+
+    // Block private/internal IPs
+    const hostname = url.hostname
+    if (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname === '::1' ||
+      hostname === '0.0.0.0' ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('192.168.') ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+      hostname.startsWith('169.254.') ||
+      hostname === 'metadata.google.internal'
+    ) {
+      return { valid: false, error: 'Private or internal network URLs are not allowed.' }
+    }
+
+    return { valid: true }
+  } catch {
+    return { valid: false, error: 'Invalid URL format.' }
+  }
+}
+
 /**
  * Hook encapsulating the webhook call sequence.
  * Handles both JSON (legacy) and PDF binary responses.
@@ -12,6 +50,7 @@ import type { WebhookPayload, WebhookResponse } from '@/types'
 export function useWebhook() {
   const { toast } = useToast()
   const abortControllerRef = useRef<AbortController | null>(null)
+  const lastCallRef = useRef<number>(0)
 
   const generate = useCallback(async () => {
     const store = useAppStore.getState()
@@ -26,6 +65,21 @@ export function useWebhook() {
     // Validate JD
     if (!generator.jd.trim()) {
       toast('Please enter a job description.', 'error')
+      return
+    }
+
+    // Rate limiting / cooldown
+    const now = Date.now()
+    if (now - lastCallRef.current < COOLDOWN_MS) {
+      toast('Please wait a few seconds between generations.', 'info')
+      return
+    }
+    lastCallRef.current = now
+
+    // Validate webhook URL
+    const urlCheck = validateWebhookUrl(profile.webhookUrl)
+    if (!urlCheck.valid) {
+      toast(urlCheck.error || 'Invalid webhook URL.', 'error')
       return
     }
 
@@ -184,4 +238,3 @@ export function useWebhook() {
 
   return { generate, abort }
 }
-

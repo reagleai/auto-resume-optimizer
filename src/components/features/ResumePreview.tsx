@@ -1,4 +1,5 @@
 import { Download, Printer, RotateCcw, FileText } from 'lucide-react'
+import DOMPurify from 'dompurify'
 import type { GeneratorResult, GeneratorStatus } from '@/types'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingView } from '@/components/features/LoadingView'
@@ -57,14 +58,18 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
       if (isPdf) {
         // For PDF, open in new tab for printing
         if (result.pdfBlobUrl) {
-          window.open(result.pdfBlobUrl, '_blank')
+          window.open(result.pdfBlobUrl, '_blank', 'noopener,noreferrer')
         }
         toast('PDF opened in new tab. Use Ctrl+P to print.', 'info')
       } else {
-        const iframe = document.getElementById('preview-iframe') as HTMLIFrameElement | null
-        if (iframe?.contentWindow) {
-          iframe.contentWindow.focus()
-          iframe.contentWindow.print()
+        // Open sanitized HTML in a new window for printing
+        const sanitizedHtml = DOMPurify.sanitize(result.html, { WHOLE_DOCUMENT: true })
+        const printWindow = window.open('', '_blank', 'noopener')
+        if (printWindow) {
+          printWindow.document.write(sanitizedHtml)
+          printWindow.document.close()
+          printWindow.focus()
+          printWindow.print()
         }
         toast('Use your browser\u2019s Save as PDF option.', 'info')
       }
@@ -170,7 +175,7 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
               <a
                 href={result.pdfBlobUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 style={{
                   fontSize: 'var(--text-xs)',
                   color: 'var(--color-text-muted)',
@@ -185,9 +190,9 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
         ) : (
           <iframe
             id="preview-iframe"
-            srcDoc={result.html}
+            srcDoc={DOMPurify.sanitize(result.html, { WHOLE_DOCUMENT: true })}
             title="Tailored Resume Preview"
-            sandbox="allow-same-origin"
+            sandbox=""
             style={{
               flex: 1,
               width: '100%',
@@ -224,4 +229,3 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
     </div>
   )
 }
-

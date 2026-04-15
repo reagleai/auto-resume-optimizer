@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import DOMPurify from 'dompurify'
 import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '@/store/appStore'
 import { useToast } from '@/hooks/useToast'
@@ -197,9 +198,9 @@ export function HistoryPage() {
             </object>
           ) : (
             <iframe
-              srcDoc={modalEntry.html}
+              srcDoc={DOMPurify.sanitize(modalEntry.html, { WHOLE_DOCUMENT: true })}
               title="Resume preview"
-              sandbox="allow-same-origin"
+              sandbox=""
               style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }}
             />
           )
