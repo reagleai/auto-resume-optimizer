@@ -1,0 +1,180 @@
+/* ════════════════════════════════════════════════════════════
+   DESIGN TOKENS — Portfolio Design System (Dark-first)
+   Fonts: Clash Display / Satoshi / JetBrains Mono
+   Accent: Green (#3ECC90)
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Dark theme (default) ────────────────────────────────── */
+:root {
+  /* === SURFACES === */
+  --color-bg:               #0B1215;
+  --color-surface:          #111D1A;
+  --color-surface-2:        #162520;
+  --color-surface-offset:   #162520;
+  --color-surface-offset-2: #1a2d26;
+  --color-surface-dynamic:  #1e3329;
+  --color-divider:          rgba(62, 204, 144, 0.15);
+  --color-border:           rgba(62, 204, 144, 0.15);
+
+  /* === TEXT === */
+  --color-text:             #E8ECE9;
+  --color-text-muted:       #6B8078;
+  --color-text-faint:       #4a5e55;
+  --color-text-inverse:     #0B1215;
+
+  /* === PRIMARY (Green Accent) === */
+  --color-primary:          #3ECC90;
+  --color-primary-hover:    #5EDDA8;
+  --color-primary-active:   #2dad7a;
+  --color-primary-highlight: rgba(62, 204, 144, 0.08);
+
+  /* === SEMANTIC COLORS === */
+  --color-success:          #3ECC90;
+  --color-success-hover:    #5EDDA8;
+  --color-success-highlight: rgba(62, 204, 144, 0.08);
+
+  --color-error:            #F87171;
+  --color-error-hover:      #DC2626;
+  --color-error-highlight:  rgba(248, 113, 113, 0.08);
+
+  --color-warning:          #FBBF24;
+  --color-warning-hover:    #D97706;
+  --color-warning-highlight: rgba(251, 191, 36, 0.08);
+
+  /* === RADIUS === */
+  --radius-sm:   8px;
+  --radius-md:   8px;
+  --radius-lg:   16px;
+  --radius-xl:   16px;
+  --radius-full: 999px;
+
+  /* === SPACING (4px base) === */
+  --space-1:  0.25rem;   /* 4px  */
+  --space-2:  0.5rem;    /* 8px  */
+  --space-3:  0.75rem;   /* 12px */
+  --space-4:  1rem;      /* 16px */
+  --space-5:  1.25rem;   /* 20px */
+  --space-6:  1.5rem;    /* 24px */
+  --space-8:  2rem;      /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+
+  /* === TYPE SCALE === */
+  --text-xs:   0.813rem;
+  --text-sm:   0.938rem;
+  --text-base: 1rem;
+  --text-lg:   clamp(1.25rem, 2.5vw, 1.5rem);
+  --text-xl:   clamp(2rem, 4vw, 3rem);
+
+  /* === FONTS (Portfolio system) === */
+  --font-heading: 'Clash Display', sans-serif;
+  --font-body:    'Satoshi', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* === SHADOWS (dark mode: glow effects) === */
+  --shadow-sm:  none;
+  --shadow-md:  0 0 20px rgba(62, 204, 144, 0.12);
+  --shadow-lg:  0 0 30px rgba(62, 204, 144, 0.22);
+
+  /* === TRANSITIONS (Portfolio: 0.2s/0.3s/0.5s ease) === */
+  --transition-fast: 0.2s ease;
+  --transition-interactive: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* === LAYOUT === */
+  --content-narrow:  640px;
+  --content-default: 960px;
+  --content-wide:    1200px;
+  --sidebar-width:   240px;
+  --topbar-height:   72px;
+  --mobile-tabbar-height: 56px;
+  --nav-scrolled-bg: rgba(11, 18, 21, 0.88);
+}
+
+/* ── Light theme ─────────────────────────────────────────── */
+[data-theme="light"] {
+  /* === SURFACES === */
+  --color-bg:               #F8FAFC;
+  --color-surface:          #FFFFFF;
+  --color-surface-2:        #F1F5F9;
+  --color-surface-offset:   #F1F5F9;
+  --color-surface-offset-2: #E2E8F0;
+  --color-surface-dynamic:  #E2E8F0;
+  --color-divider:          #E2E8F0;
+  --color-border:           #E2E8F0;
+
+  /* === TEXT === */
+  --color-text:             #334155;
+  --color-text-muted:       #64748B;
+  --color-text-faint:       #94A3B8;
+  --color-text-inverse:     #F8FAFC;
+
+  /* === PRIMARY (Slightly adjusted green for light mode readability) === */
+  --color-primary:          #22C55E;
+  --color-primary-hover:    #16A34A;
+  --color-primary-active:   #15803D;
+  --color-primary-highlight: #DCFCE7;
+
+  /* === SEMANTIC === */
+  --color-success:          #22C55E;
+  --color-success-hover:    #16A34A;
+  --color-success-highlight: #DCFCE7;
+
+  --color-error:            #DC2626;
+  --color-error-hover:      #B91C1C;
+  --color-error-highlight:  #FEE2E2;
+
+  --color-warning:          #D97706;
+  --color-warning-hover:    #B45309;
+  --color-warning-highlight: #FEF3C7;
+
+  /* === SHADOWS (light mode: elevation, not glow) === */
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.05), 0 8px 32px rgba(0, 0, 0, 0.04);
+  --shadow-lg:  0 4px 20px rgba(0, 0, 0, 0.05);
+
+  --nav-scrolled-bg: rgba(248, 250, 252, 0.88);
+}
+
+/* ── System preference fallback ──────────────────────────── */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --color-bg:               #F8FAFC;
+    --color-surface:          #FFFFFF;
+    --color-surface-2:        #F1F5F9;
+    --color-surface-offset:   #F1F5F9;
+    --color-surface-offset-2: #E2E8F0;
+    --color-surface-dynamic:  #E2E8F0;
+    --color-divider:          #E2E8F0;
+    --color-border:           #E2E8F0;
+
+    --color-text:             #334155;
+    --color-text-muted:       #64748B;
+    --color-text-faint:       #94A3B8;
+    --color-text-inverse:     #F8FAFC;
+
+    --color-primary:          #22C55E;
+    --color-primary-hover:    #16A34A;
+    --color-primary-active:   #15803D;
+    --color-primary-highlight: #DCFCE7;
+
+    --color-success:          #22C55E;
+    --color-success-hover:    #16A34A;
+    --color-success-highlight: #DCFCE7;
+
+    --color-error:            #DC2626;
+    --color-error-hover:      #B91C1C;
+    --color-error-highlight:  #FEE2E2;
+
+    --color-warning:          #D97706;
+    --color-warning-hover:    #B45309;
+    --color-warning-highlight: #FEF3C7;
+
+    --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.02);
+    --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.05), 0 8px 32px rgba(0, 0, 0, 0.04);
+    --shadow-lg:  0 4px 20px rgba(0, 0, 0, 0.05);
+
+    --nav-scrolled-bg: rgba(248, 250, 252, 0.88);
+  }
+}
