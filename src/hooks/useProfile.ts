@@ -53,11 +53,14 @@ const PROFILE_QUERY_KEY = ['profile'] as const
 async function fetchProfile(): Promise<ProfileState | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('first_name, last_name, base_resume_html, webhook_url, maxgrowthpct, companynamefallback, roletitlefallback')
     .limit(1)
     .maybeSingle()
 
-  if (error) throw error
+  if (error) {
+    if (import.meta.env.DEV) console.error('[useProfile] Fetch error:', error)
+    throw new Error('Could not load profile. Please try again.')
+  }
   if (!data) return null
   return rowToProfile(data as ProfileRow)
 }
@@ -77,10 +80,13 @@ async function upsertProfile(profile: ProfileState): Promise<ProfileState> {
   const { data, error } = await supabase
     .from('profiles')
     .upsert(payload, { onConflict: 'id' })
-    .select()
+    .select('first_name, last_name, base_resume_html, webhook_url, maxgrowthpct, companynamefallback, roletitlefallback')
     .single()
 
-  if (error) throw error
+  if (error) {
+    if (import.meta.env.DEV) console.error('[useProfile] Upsert error:', error)
+    throw new Error('Could not save profile. Please try again.')
+  }
   return rowToProfile(data as ProfileRow)
 }
 

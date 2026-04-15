@@ -24,7 +24,6 @@ export function ProfilePage() {
     data: remoteProfile,
     isLoading: isFetching,
     isError: isFetchError,
-    error: fetchError,
   } = useProfileQuery()
 
   const profileMutation = useProfileMutation()
@@ -82,8 +81,8 @@ export function ProfilePage() {
         setTimeout(() => setSaved(false), 1500)
       },
       onError: (err) => {
-        const msg = err instanceof Error ? err.message : 'Failed to save profile'
-        toast(`Save failed: ${msg}`, 'error')
+        if (import.meta.env.DEV) console.error('[ProfilePage] Save error:', err)
+        toast('Save failed. Please check your connection and try again.', 'error')
       },
     })
   }
@@ -140,8 +139,7 @@ export function ProfilePage() {
       color: 'var(--color-error)',
       marginBottom: 'var(--space-4)',
     }}>
-      Could not load saved profile: {fetchError instanceof Error ? fetchError.message : 'Unknown error'}. 
-      You can still fill in the form below — data will be saved when you click Save.
+      Could not load saved profile. You can still fill in the form below — data will be saved when you click Save.
     </div>
   ) : null
 
@@ -216,7 +214,7 @@ export function ProfilePage() {
               required
               placeholder="e.g. Ajay"
               error={errors.firstName?.message}
-              {...register('firstName', { required: 'This field is required' })}
+              {...register('firstName', { required: 'This field is required', maxLength: { value: 100, message: 'Max 100 characters' } })}
             />
             <Input
               id="input-lastName"
@@ -224,7 +222,7 @@ export function ProfilePage() {
               required
               placeholder="e.g. Sharma"
               error={errors.lastName?.message}
-              {...register('lastName', { required: 'This field is required' })}
+              {...register('lastName', { required: 'This field is required', maxLength: { value: 100, message: 'Max 100 characters' } })}
             />
           </div>
         </div>
@@ -255,7 +253,7 @@ export function ProfilePage() {
             currentLength={resumeLength}
             placeholder="Paste your full resume HTML here. This is the source template the AI will tailor for each job application."
             error={errors.baseResumeHtml?.message}
-            {...register('baseResumeHtml', { required: 'This field is required' })}
+            {...register('baseResumeHtml', { required: 'This field is required', maxLength: { value: 500_000, message: 'Resume HTML is too large (max 500KB)' } })}
           />
         </div>
 
@@ -348,20 +346,21 @@ export function ProfilePage() {
                   label="Max Growth %"
                   type="number"
                   helperText="How aggressively the AI can expand resume content."
-                  {...register('maxgrowthpct')}
+                  {...register('maxgrowthpct', { min: { value: 1, message: 'Minimum is 1%' }, max: { value: 100, message: 'Maximum is 100%' } })}
+                  error={errors.maxgrowthpct?.message}
                 />
                 <Input
                   id="input-companynamefallback"
                   label="Company Name Fallback"
                   helperText="Used if JD doesn't mention company name."
-                  {...register('companynamefallback')}
+                  {...register('companynamefallback', { maxLength: { value: 200, message: 'Max 200 characters' } })}
                 />
               </div>
               <Input
                 id="input-roletitlefallback"
                 label="Role Title Fallback"
                 helperText="Used if JD doesn't mention role title."
-                {...register('roletitlefallback')}
+                {...register('roletitlefallback', { maxLength: { value: 200, message: 'Max 200 characters' } })}
               />
             </div>
           </div>

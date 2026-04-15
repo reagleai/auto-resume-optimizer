@@ -1,4 +1,5 @@
-import { Download, Printer, RotateCcw, FileText } from 'lucide-react'
+import { useState } from 'react'
+import { Download, Printer, RotateCcw, FileText, CheckCircle } from 'lucide-react'
 import DOMPurify from 'dompurify'
 import type { GeneratorResult, GeneratorStatus } from '@/types'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -17,6 +18,7 @@ interface ResumePreviewProps {
 
 export function ResumePreview({ result, status, loadingStep, error, onRetry, onClear }: ResumePreviewProps) {
   const { toast } = useToast()
+  const [downloadSuccess, setDownloadSuccess] = useState(false)
 
   if (status === 'loading') {
     return <LoadingView currentStep={loadingStep} />
@@ -40,29 +42,28 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
 
     const handleDownload = () => {
       if (isPdf && result.pdfBlobUrl) {
-        // Download PDF via blob URL
         const a = document.createElement('a')
         a.href = result.pdfBlobUrl
         a.download = result.filename || 'tailored-resume.pdf'
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
-        toast('Resume PDF downloaded ✓', 'success')
       } else {
         downloadHtml(result.html, result.filename)
-        toast('Resume downloaded ✓', 'success')
       }
+      // Show success state on button
+      setDownloadSuccess(true)
+      toast('Resume downloaded ✓', 'success')
+      setTimeout(() => setDownloadSuccess(false), 2000)
     }
 
     const handlePrint = () => {
       if (isPdf) {
-        // For PDF, open in new tab for printing
         if (result.pdfBlobUrl) {
           window.open(result.pdfBlobUrl, '_blank', 'noopener,noreferrer')
         }
         toast('PDF opened in new tab. Use Ctrl+P to print.', 'info')
       } else {
-        // Open sanitized HTML in a new window for printing
         const sanitizedHtml = DOMPurify.sanitize(result.html, { WHOLE_DOCUMENT: true })
         const printWindow = window.open('', '_blank', 'noopener')
         if (printWindow) {
@@ -77,26 +78,53 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-        {/* Toolbar */}
-        <div
-          style={{
+        {/* ── Toolbar ─────────────────────────────────────── */}
+        <div className="preview-toolbar">
+          {/* Left — context label */}
+          <span style={{
+            fontSize: 'var(--text-sm)',
+            fontWeight: 600,
+            color: 'var(--color-text)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 'var(--space-4)',
-            marginBottom: 'var(--space-4)',
-            flexWrap: 'wrap' as const,
-          }}
-        >
-          <span style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            gap: 'var(--space-2)',
+            flexWrap: 'wrap',
+          }}>
             {isPdf && <FileText size={14} style={{ color: 'var(--color-primary)' }} />}
             Tailored for {result.roletitle} at {result.companyname}
-            {isPdf && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', background: 'var(--color-primary-highlight)', padding: '1px 8px', borderRadius: 'var(--radius-full)', fontWeight: 500 }}>PDF</span>}
+            {isPdf && (
+              <span style={{
+                fontSize: 'var(--text-xs)',
+                color: 'var(--color-text-muted)',
+                background: 'var(--color-primary-highlight)',
+                padding: '1px 8px',
+                borderRadius: 'var(--radius-full)',
+                fontWeight: 500,
+              }}>
+                PDF
+              </span>
+            )}
           </span>
-          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-            <button onClick={handleDownload} className="preview-action-btn">
-              <Download size={14} /> Download {isPdf ? 'PDF' : 'HTML'}
+
+          {/* Right — action buttons */}
+          <div className="preview-toolbar-actions">
+            {/* Primary download button */}
+            <button
+              onClick={handleDownload}
+              className="preview-download-btn"
+              style={downloadSuccess ? {
+                background: 'var(--color-success)',
+                borderColor: 'var(--color-success)',
+                color: '#fff',
+              } : undefined}
+            >
+              {downloadSuccess
+                ? <><CheckCircle size={15} /> Downloaded ✓</>
+                : <><Download size={15} /> Download {isPdf ? 'PDF' : 'HTML'}</>
+              }
             </button>
+
+            {/* Secondary actions */}
             <button onClick={handlePrint} className="preview-action-btn">
               <Printer size={14} /> {isPdf ? 'Open in Tab' : 'Print PDF'}
             </button>
@@ -106,7 +134,7 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
           </div>
         </div>
 
-        {/* Preview area */}
+        {/* ── Preview area ────────────────────────────────── */}
         {isPdf && result.pdfBlobUrl ? (
           <div style={{
             flex: 1,
@@ -126,7 +154,8 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
               gap: 'var(--space-5)',
               padding: 'var(--space-10)',
               textAlign: 'center' as const,
-              maxWidth: '360px',
+              maxWidth: '400px',
+              width: '100%',
             }}>
               {/* PDF icon */}
               <div style={{
@@ -142,34 +171,29 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
                 <div style={{ fontSize: 'var(--text-lg)', fontWeight: 700, marginBottom: 'var(--space-1)' }}>
                   Your resume is ready
                 </div>
-                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>
+                <div style={{
+                  fontSize: 'var(--text-sm)',
+                  color: 'var(--color-text-muted)',
+                  wordBreak: 'break-all',
+                }}>
                   {result.filename}
                 </div>
               </div>
 
-              {/* Primary download button */}
-              <a
-                href={result.pdfBlobUrl}
-                download={result.filename || 'tailored-resume.pdf'}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                  padding: 'var(--space-3) var(--space-7)',
-                  background: 'var(--color-primary)',
-                  color: '#fff',
-                  borderRadius: 'var(--radius-lg)',
-                  fontWeight: 600,
-                  fontSize: 'var(--text-sm)',
-                  textDecoration: 'none',
-                  transition: 'opacity 0.15s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+              {/* Primary download button — large, full-width on mobile */}
+              <button
+                onClick={handleDownload}
+                className="preview-download-btn-hero"
+                style={downloadSuccess ? {
+                  background: 'var(--color-success)',
+                  borderColor: 'var(--color-success)',
+                } : undefined}
               >
-                <Download size={16} />
-                Download PDF
-              </a>
+                {downloadSuccess
+                  ? <><CheckCircle size={18} /> Downloaded ✓</>
+                  : <><Download size={18} /> Download PDF</>
+                }
+              </button>
 
               {/* Secondary: open in tab */}
               <a
@@ -205,11 +229,13 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
           />
         )}
 
+        {/* ── Footer metadata ─────────────────────────────── */}
         <div style={{
           fontSize: 'var(--text-xs)',
           color: 'var(--color-text-faint)',
-          marginTop: 'var(--space-3)',
+          marginTop: 'var(--space-4)',
           textAlign: 'center' as const,
+          padding: '0 var(--space-4)',
         }}>
           Generated {formatTimestamp(result.timestamp)} · {result.companyname} · {result.roletitle}
         </div>

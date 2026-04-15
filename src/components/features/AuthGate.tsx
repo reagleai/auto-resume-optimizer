@@ -1,5 +1,69 @@
 import { useState, useCallback, createContext, useContext, type ReactNode } from 'react'
-import { Eye, EyeOff, Lock } from 'lucide-react'
+import { Eye, EyeOff, Lock, ShieldAlert } from 'lucide-react'
+
+/**
+ * ══════════════════════════════════════════════════════════════════
+ * AuthGate — Client-side password lock for the application
+ * ══════════════════════════════════════════════════════════════════
+ *
+ * SECURITY MODEL & KNOWN LIMITATIONS:
+ *
+ * 1. BUNDLE EXPOSURE (CRITICAL — accepted risk):
+ *    VITE_APP_PASSWORD is compiled into the client JS bundle at build time.
+ *    Anyone can extract it from DevTools → Sources or by running:
+ *      strings index.[hash].js | grep -i password
+ *    This gate is a deterrent, NOT a security boundary. It blocks casual
+ *    access but does NOT protect against a motivated attacker.
+ *
+ *    RECOMMENDED FUTURE FIX: Move password validation to a Vercel Edge
+ *    Function or Supabase Edge Function that returns a signed JWT.
+ *    The frontend should never see the password — only a token.
+ *
+ * 2. DEVTOOLS BYPASS (inherent limitation):
+ *    Since auth state lives in React state + sessionStorage, a user with
+ *    DevTools access could set sessionStorage.setItem('rt_unlocked', 'true')
+ *    and reload the page to bypass the gate. This is inherent to all
+ *    client-side-only auth. No code fix exists — only server-side auth
+ *    would solve this.
+ *
+ * 3. SESSION PERSISTENCE:
+ *    sessionStorage is used intentionally here. It persists across reloads
+ *    within the same tab but clears on tab/browser close. This is the
+ *    correct behaviour for this use case:
+ *    - Page reload (F5) → stays unlocked ✓
+ *    - Navigate within app → stays unlocked ✓
+ *    - Close tab → must re-enter password ✓
+ *    - New tab → must re-enter password ✓
+ *    - Close browser → must re-enter password ✓
+ *
+ * 4. BRUTE FORCE PROTECTION:
+ *    Exponential backoff (2^n seconds) + hard lockout after 10 attempts.
+ *    Attempt count is stored in a module-level variable (survives re-renders
+ *    but resets on page reload — intentional).
+ * ══════════════════════════════════════════════════════════════════
+ */
+
+// ── Module-level brute force tracking (survives re-renders, resets on reload) ──
+const SESSION_KEY = 'rt_unlocked'
+const MAX_ATTEMPTS = 10
+let failedAttempts = 0
+let lockoutUntil = 0
+
+/** Calculate backoff delay: 0, 2s, 4s, 8s, 16s… */
+function getBackoffMs(): number {
+  if (failedAttempts <= 1) return 0
+  return Math.min(2 ** (failedAttempts - 1) * 1000, 30_000) // Cap at 30s
+}
+
+// ── Dev-mode console warning about bundle exposure ──
+if (import.meta.env.DEV) {
+  console.warn(
+    '[AuthGate] ⚠️ SECURITY WARNING: VITE_APP_PASSWORD is compiled into the client ' +
+    'bundle and can be extracted by anyone with DevTools access. This password gate ' +
+    'is a deterrent only. For real security, move validation to a server-side edge ' +
+    'function. See comments in AuthGate.tsx for the full threat model.'
+  )
+}
 
 interface AuthContextValue {
   isUnlocked: boolean
@@ -16,26 +80,81 @@ interface AuthGateProps {
 }
 
 export function AuthGate({ children }: AuthGateProps) {
-  const [isUnlocked, setIsUnlocked] = useState(false)
+  // Check sessionStorage on initial render — no flash of password screen
+  const [isUnlocked, setIsUnlocked] = useState(() => {
+    return sessionStorage.getItem(SESSION_KEY) === 'true'
+  })
+
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isValidating, setIsValidating] = useState(false)
   const [shake, setShake] = useState(false)
+  const [isLockedOut, setIsLockedOut] = useState(false)
+  const [cooldownRemaining, setCooldownRemaining] = useState(0)
 
   const handleUnlock = useCallback(() => {
+    // Check hard lockout
+    if (failedAttempts >= MAX_ATTEMPTS) {
+      setIsLockedOut(true)
+      setError(`Too many failed attempts. Reload the page to try again.`)
+      return
+    }
+
+    // Check backoff cooldown
+    const now = Date.now()
+    if (now < lockoutUntil) {
+      const remaining = Math.ceil((lockoutUntil - now) / 1000)
+      setCooldownRemaining(remaining)
+      setError(`Too many attempts. Wait ${remaining}s before trying again.`)
+      return
+    }
+
     setIsValidating(true)
     setError('')
 
-    // Small delay to feel intentional (like a real auth check)
+    // Small delay to feel intentional
     setTimeout(() => {
       const correctPassword = import.meta.env.VITE_APP_PASSWORD
       if (password === correctPassword) {
+        // Success — persist to sessionStorage
+        sessionStorage.setItem(SESSION_KEY, 'true')
         setIsUnlocked(true)
+        failedAttempts = 0 // Reset on success
       } else {
-        setError('Incorrect password')
-        setShake(true)
-        setTimeout(() => setShake(false), 500)
+        failedAttempts++
+
+        if (failedAttempts >= MAX_ATTEMPTS) {
+          setIsLockedOut(true)
+          setError('Too many failed attempts. Reload the page to try again.')
+        } else {
+          // Apply exponential backoff
+          const backoffMs = getBackoffMs()
+          if (backoffMs > 0) {
+            lockoutUntil = Date.now() + backoffMs
+            const secs = Math.ceil(backoffMs / 1000)
+            setCooldownRemaining(secs)
+            setError(`Incorrect password. Wait ${secs}s before trying again.`)
+
+            // Countdown timer
+            const interval = setInterval(() => {
+              const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000)
+              if (remaining <= 0) {
+                setCooldownRemaining(0)
+                setError('')
+                clearInterval(interval)
+              } else {
+                setCooldownRemaining(remaining)
+                setError(`Incorrect password. Wait ${remaining}s before trying again.`)
+              }
+            }, 1000)
+          } else {
+            setError('Incorrect password')
+          }
+
+          setShake(true)
+          setTimeout(() => setShake(false), 500)
+        }
       }
       setIsValidating(false)
     }, 300)
@@ -43,12 +162,12 @@ export function AuthGate({ children }: AuthGateProps) {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && password && !isValidating) {
+      if (e.key === 'Enter' && password && !isValidating && !isLockedOut && cooldownRemaining <= 0) {
         e.preventDefault()
         handleUnlock()
       }
     },
-    [password, isValidating, handleUnlock]
+    [password, isValidating, isLockedOut, cooldownRemaining, handleUnlock]
   )
 
   if (isUnlocked) {
@@ -58,6 +177,8 @@ export function AuthGate({ children }: AuthGateProps) {
       </AuthContext.Provider>
     )
   }
+
+  const isDisabled = !password || isValidating || isLockedOut || cooldownRemaining > 0
 
   return (
     <div
@@ -95,14 +216,18 @@ export function AuthGate({ children }: AuthGateProps) {
               marginBottom: 'var(--space-4)',
             }}
           >
-            <Lock size={28} style={{ color: 'var(--color-primary)' }} />
+            {isLockedOut ? (
+              <ShieldAlert size={28} style={{ color: 'var(--color-error)' }} />
+            ) : (
+              <Lock size={28} style={{ color: 'var(--color-primary)' }} />
+            )}
           </div>
           <h1
             style={{
               fontFamily: 'var(--font-heading)',
               fontSize: 'clamp(1.5rem, 3vw, 2rem)',
               fontWeight: 700,
-              color: 'var(--color-primary)',
+              color: isLockedOut ? 'var(--color-error)' : 'var(--color-primary)',
               letterSpacing: '-1px',
               marginBottom: 'var(--space-1)',
             }}
@@ -115,7 +240,7 @@ export function AuthGate({ children }: AuthGateProps) {
               color: 'var(--color-text-muted)',
             }}
           >
-            Enter the password to access the tool
+            {isLockedOut ? 'Access locked' : 'Enter the password to access the tool'}
           </p>
         </div>
 
@@ -132,12 +257,12 @@ export function AuthGate({ children }: AuthGateProps) {
             value={password}
             onChange={(e) => {
               setPassword(e.target.value)
-              if (error) setError('')
+              if (error && cooldownRemaining <= 0) setError('')
             }}
             onKeyDown={handleKeyDown}
             placeholder="Enter password"
             autoFocus
-            disabled={isValidating}
+            disabled={isValidating || isLockedOut}
             style={{
               width: '100%',
               padding: 'var(--space-3) var(--space-4)',
@@ -151,6 +276,7 @@ export function AuthGate({ children }: AuthGateProps) {
               outline: 'none',
               transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
               boxSizing: 'border-box',
+              opacity: isLockedOut ? 0.5 : 1,
             }}
             onFocus={(e) => {
               if (!error) {
@@ -209,23 +335,23 @@ export function AuthGate({ children }: AuthGateProps) {
         {/* Unlock button */}
         <button
           onClick={handleUnlock}
-          disabled={!password || isValidating}
+          disabled={isDisabled}
           style={{
             width: '100%',
             padding: 'var(--space-3) var(--space-6)',
             fontSize: 'var(--text-sm)',
             fontWeight: 600,
             fontFamily: 'var(--font-body)',
-            background: !password || isValidating ? 'var(--color-surface-2)' : 'var(--color-primary)',
-            color: !password || isValidating ? 'var(--color-text-muted)' : '#fff',
+            background: isDisabled ? 'var(--color-surface-2)' : 'var(--color-primary)',
+            color: isDisabled ? 'var(--color-text-muted)' : '#fff',
             border: 'none',
             borderRadius: 'var(--radius-lg)',
-            cursor: !password || isValidating ? 'not-allowed' : 'pointer',
+            cursor: isDisabled ? 'not-allowed' : 'pointer',
             transition: 'all 0.2s ease',
             minHeight: '48px',
           }}
           onMouseEnter={(e) => {
-            if (password && !isValidating) {
+            if (!isDisabled) {
               e.currentTarget.style.opacity = '0.9'
             }
           }}
@@ -233,7 +359,13 @@ export function AuthGate({ children }: AuthGateProps) {
             e.currentTarget.style.opacity = '1'
           }}
         >
-          {isValidating ? 'Verifying…' : 'Unlock'}
+          {isLockedOut
+            ? 'Locked — Reload Page'
+            : cooldownRemaining > 0
+              ? `Wait ${cooldownRemaining}s…`
+              : isValidating
+                ? 'Verifying…'
+                : 'Unlock'}
         </button>
 
         {/* Footer hint */}
@@ -244,11 +376,11 @@ export function AuthGate({ children }: AuthGateProps) {
             marginTop: 'var(--space-6)',
           }}
         >
-          Session lasts until you close or refresh the tab
+          Session lasts until you close the tab
         </p>
       </div>
 
-      {/* Shake animation (injected inline so no additional CSS file needed) */}
+      {/* Shake animation */}
       <style>{`
         @keyframes authShake {
           0%, 100% { transform: translateX(0); }
