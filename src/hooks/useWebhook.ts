@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react'
 import { useAppStore } from '@/store/appStore'
 import { useToast } from '@/hooks/useToast'
 import { WEBHOOK_TIMEOUT_MS } from '@/lib/constants'
-import type { WebhookPayload, WebhookResponse } from '@/types'
+import type { WebhookPayload, WebhookResponse, SaveResumePayload } from '@/types'
 
 /** Minimum time between consecutive webhook calls (ms) */
 const COOLDOWN_MS = 5000
@@ -47,12 +47,20 @@ function validateWebhookUrl(urlStr: string): { valid: boolean; error?: string } 
  * Handles both JSON (legacy) and PDF binary responses.
  * Returns { generate, abort } functions.
  */
-export function useWebhook() {
+interface UseWebhookOptions {
+  onGenerated?: (data: SaveResumePayload) => void
+}
+
+export function useWebhook(options?: UseWebhookOptions) {
   const { toast } = useToast()
   const abortControllerRef = useRef<AbortController | null>(null)
   const lastCallRef = useRef<number>(0)
+  const generationIdRef = useRef(0)
+  const onGeneratedRef = useRef(options?.onGenerated)
+  onGeneratedRef.current = options?.onGenerated
 
   const generate = useCallback(async () => {
+    const genId = ++generationIdRef.current
     const store = useAppStore.getState()
     const { profile, generator } = store
 
@@ -135,6 +143,9 @@ export function useWebhook() {
       const companyname = headerCompany || profile.companynamefallback || 'Company'
       const roletitle = headerRole || profile.roletitlefallback || 'Role'
 
+      // Guard: discard stale responses from a superseded generation run
+      if (genId !== generationIdRef.current) return
+
       if (isPdf || isPdfByHeader) {
         // ── PDF binary response ──────────────────────────────────
         const pdfBlobUrl = URL.createObjectURL(blob)
@@ -174,6 +185,18 @@ export function useWebhook() {
         })
 
         toast(`Resume PDF generated for ${roletitle} at ${companyname} ✓`, 'success')
+
+        // Fire save callback (non-blocking, once per run)
+        onGeneratedRef.current?.({
+          companyName: companyname,
+          roleTitle: roletitle,
+          filename,
+          resumeHtml: '',
+          format: 'pdf',
+          jobDescription: generator.jd,
+          keywords: generator.keywords,
+          pdfBlob: blob,
+        })
       } else {
         // ── JSON response (legacy format) ────────────────────────
         const text = await blob.text()
@@ -215,6 +238,17 @@ export function useWebhook() {
         })
 
         toast(`Resume tailored for ${rtitle} at ${cname} ✓`, 'success')
+
+        // Fire save callback (non-blocking, once per run)
+        onGeneratedRef.current?.({
+          companyName: cname,
+          roleTitle: rtitle,
+          filename: fname,
+          resumeHtml: html,
+          format: 'html',
+          jobDescription: generator.jd,
+          keywords: generator.keywords,
+        })
       }
     } catch (err: unknown) {
       const error = err as Error

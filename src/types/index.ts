@@ -77,3 +77,40 @@ export interface WebhookResponse {
   companyname?: string;
   roletitle?: string;
 }
+
+// ── Supabase: resume_history + resume_pdfs ─────────────────────
+
+/** Row shape from the resume_pdfs table */
+export interface SavedResumePdf {
+  id: string;
+  file_name: string;
+  file_path: string;
+  public_url: string;
+  file_size_bytes: number;
+}
+
+/** Row shape from the resume_history table (with joined PDF data) */
+export interface SavedResumeWithPdf {
+  id: string;
+  created_at: string;
+  company_name: string;
+  role_title: string;
+  filename: string;
+  resume_html: string;
+  format: 'html' | 'pdf';
+  job_description: string;
+  keywords: string;
+  resume_pdfs: SavedResumePdf[];
+}
+
+/** Payload for saving a generated resume to Supabase */
+export interface SaveResumePayload {
+  companyName: string;
+  roleTitle: string;
+  filename: string;
+  resumeHtml: string;
+  format: 'html' | 'pdf';
+  jobDescription: string;
+  keywords: string;
+  pdfBlob?: Blob;
+}
