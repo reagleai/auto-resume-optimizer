@@ -5,10 +5,10 @@ export const WEBHOOK_TIMEOUT_MS = 90_000 // 90 seconds
 export const HISTORY_MAX_ITEMS = 20
 
 export const LOADING_STEPS: LoadingStep[] = [
-  { icon: 'zap',          label: 'Connecting to workflow...',      duration: 8000  },
-  { icon: 'brain',        label: 'Extracting JD intelligence...',  duration: 15000 },
-  { icon: 'search',       label: 'Planning keyword insertions...', duration: 12000 },
-  { icon: 'pen-line',     label: 'Rewriting resume sections...',   duration: 15000 },
+  { icon: 'zap',          label: 'Connecting to workflow...',      duration: 5000  },
+  { icon: 'brain',        label: 'Extracting JD intelligence...',  duration: 10000 },
+  { icon: 'search',       label: 'Planning keyword insertions...', duration: 8000  },
+  { icon: 'pen-line',     label: 'Rewriting resume sections...',   duration: 10000 },
   { icon: 'check-circle', label: 'Finalizing and assembling...',   duration: 0     },
 ]
 
