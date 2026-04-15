@@ -15,14 +15,18 @@ function AppContent() {
 
   // Fetch profile from Supabase on app load and sync to Zustand store
   // so all pages (including Generator) see the profile data immediately.
-  const { data: remoteProfile } = useProfileQuery()
+  const { data: remoteProfile, isFetched } = useProfileQuery()
   const setProfile = useAppStore((s) => s.setProfile)
+  const setProfileLoading = useAppStore((s) => s.setProfileLoading)
 
   useEffect(() => {
-    if (remoteProfile) {
-      setProfile(remoteProfile)
+    if (isFetched) {
+      if (remoteProfile) {
+        setProfile(remoteProfile)
+      }
+      setProfileLoading(false)
     }
-  }, [remoteProfile, setProfile])
+  }, [remoteProfile, isFetched, setProfile, setProfileLoading])
 
   return (
     <AppShell>

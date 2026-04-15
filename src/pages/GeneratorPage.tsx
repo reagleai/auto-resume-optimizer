@@ -18,6 +18,7 @@ let globalRunId = 0
 
 export function GeneratorPage() {
   const isProfileComplete = useAppStore((s) => s.isProfileComplete)
+  const profileLoading = useAppStore((s) => s.profileLoading)
   const generator = useAppStore((s) => s.generator)
   const setGeneratorField = useAppStore((s) => s.setGeneratorField)
   const setLoadingStep = useAppStore((s) => s.setLoadingStep)
@@ -145,8 +146,8 @@ export function GeneratorPage() {
     <div className="generator-page">
       {/* Left Panel: Input form */}
       <div className="gen-left">
-        {/* Profile guard or compact status card */}
-        {profileComplete ? <ProfileCard /> : <ProfileGuard />}
+        {/* Profile guard or compact status card — hidden while initial fetch is in-flight */}
+        {!profileLoading && (profileComplete ? <ProfileCard /> : <ProfileGuard />)}
 
         <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-xl)', fontWeight: 600, marginBottom: 'var(--space-6)' }}>
           Generate Resume

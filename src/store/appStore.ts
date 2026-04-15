@@ -9,7 +9,9 @@ import { DEFAULT_PROFILE, HISTORY_MAX_ITEMS } from '@/lib/constants'
 interface AppStore {
   // ── Profile ─────────────────────────────────────────────────────
   profile: ProfileState
+  profileLoading: boolean
   setProfile: (data: Partial<ProfileState>) => void
+  setProfileLoading: (loading: boolean) => void
   isProfileComplete: () => boolean
 
   // ── Generator ────────────────────────────────────────────────────
@@ -62,8 +64,11 @@ function createStore(set: StoreSet, get: StoreGet): AppStore {
   return {
     // ── Profile ─────────────────────────────────────────────────────
     profile: { ...DEFAULT_PROFILE },
+    profileLoading: true, // true until initial Supabase fetch completes
     setProfile: (data: Partial<ProfileState>) =>
       set((state) => ({ profile: { ...state.profile, ...data } }), false, 'setProfile'),
+    setProfileLoading: (loading: boolean) =>
+      set({ profileLoading: loading }, false, 'setProfileLoading'),
     isProfileComplete: () => {
       const p = get().profile
       return !!(p.firstName.trim() && p.lastName.trim() && p.baseResumeHtml.trim() && p.webhookUrl.trim())
