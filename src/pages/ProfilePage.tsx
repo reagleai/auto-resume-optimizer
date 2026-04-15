@@ -1,30 +1,55 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { ChevronDown } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 import { useToast } from '@/hooks/useToast'
+import { useProfileQuery, useProfileMutation } from '@/hooks/useProfile'
 import { Input } from '@/components/ui/Input'
 import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
+import { Skeleton } from '@/components/ui/Skeleton'
 import type { ProfileState } from '@/types'
+import { DEFAULT_PROFILE } from '@/lib/constants'
 
 const REQUIRED_FIELDS: (keyof ProfileState)[] = ['firstName', 'lastName', 'baseResumeHtml', 'webhookUrl']
 
 export function ProfilePage() {
-  const profile = useAppStore((s) => s.profile)
   const setProfile = useAppStore((s) => s.setProfile)
   const { toast } = useToast()
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  // ── Supabase data fetching via React Query ──────────────────
+  const {
+    data: remoteProfile,
+    isLoading: isFetching,
+    isError: isFetchError,
+    error: fetchError,
+  } = useProfileQuery()
+
+  const profileMutation = useProfileMutation()
+
+  // Determine the initial form values: remote data → defaults
+  const initialValues: ProfileState = remoteProfile ?? DEFAULT_PROFILE
+
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<ProfileState>({
-    defaultValues: profile,
+    defaultValues: initialValues,
   })
+
+  // When remote data arrives, reset the form with fetched values
+  // and sync to the Zustand store so the generator page sees them
+  useEffect(() => {
+    if (remoteProfile) {
+      reset(remoteProfile)
+      setProfile(remoteProfile)
+    }
+  }, [remoteProfile, reset, setProfile])
 
   const watchedValues = watch()
 
@@ -39,18 +64,97 @@ export function ProfilePage() {
   }, [watchedValues])
 
   const onSubmit = (data: ProfileState) => {
-    setProfile({
+    const normalized: ProfileState = {
       ...data,
       maxgrowthpct: Number(data.maxgrowthpct) || 8,
       companynamefallback: data.companynamefallback || 'unknown-company',
       roletitlefallback: data.roletitlefallback || 'target-role',
+    }
+
+    // Save to Zustand (for immediate in-app use)
+    setProfile(normalized)
+
+    // Save to Supabase via React Query mutation
+    profileMutation.mutate(normalized, {
+      onSuccess: () => {
+        toast('Profile saved! Ready to generate resumes.', 'success')
+        setSaved(true)
+        setTimeout(() => setSaved(false), 1500)
+      },
+      onError: (err) => {
+        const msg = err instanceof Error ? err.message : 'Failed to save profile'
+        toast(`Save failed: ${msg}`, 'error')
+      },
     })
-    toast('Profile saved! Ready to generate resumes.', 'success')
-    setSaved(true)
-    setTimeout(() => setSaved(false), 1500)
   }
 
   const resumeLength = watchedValues.baseResumeHtml?.length || 0
+  const isSaving = profileMutation.isPending
+
+  // ── Loading skeleton ─────────────────────────────────────────
+  if (isFetching) {
+    return (
+      <div style={{
+        maxWidth: 'var(--content-narrow)',
+        margin: '0 auto',
+        padding: 'var(--space-6)',
+        animation: 'pageIn 0.6s ease',
+      }}>
+        <Skeleton variant="heading" />
+        <div style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-6)' }}>
+          <Skeleton variant="text" width="60%" />
+        </div>
+        <Skeleton variant="text" height="4px" width="100%" />
+        <div style={{ marginTop: 'var(--space-8)' }}>
+          <Skeleton variant="text" width="30%" height="12px" />
+          <div style={{ display: 'flex', gap: 'var(--space-4)', marginTop: 'var(--space-4)' }}>
+            <Skeleton variant="custom" height="44px" width="50%" />
+            <Skeleton variant="custom" height="44px" width="50%" />
+          </div>
+        </div>
+        <div style={{ marginTop: 'var(--space-8)' }}>
+          <Skeleton variant="text" width="30%" height="12px" />
+          <div style={{ marginTop: 'var(--space-4)' }}>
+            <Skeleton variant="custom" height="200px" />
+          </div>
+        </div>
+        <div style={{ marginTop: 'var(--space-8)' }}>
+          <Skeleton variant="text" width="30%" height="12px" />
+          <div style={{ marginTop: 'var(--space-4)' }}>
+            <Skeleton variant="custom" height="44px" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Fetch error ──────────────────────────────────────────────
+  if (isFetchError) {
+    return (
+      <div style={{
+        maxWidth: 'var(--content-narrow)',
+        margin: '0 auto',
+        padding: 'var(--space-6)',
+        animation: 'pageIn 0.6s ease',
+      }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-xl)', fontWeight: 600, marginBottom: 'var(--space-2)' }}>
+          Your Profile
+        </h1>
+        <div style={{
+          padding: 'var(--space-4)',
+          background: 'var(--color-error-highlight)',
+          borderLeft: '3px solid var(--color-error)',
+          borderRadius: 'var(--radius-md)',
+          fontSize: 'var(--text-sm)',
+          color: 'var(--color-error)',
+          marginBottom: 'var(--space-4)',
+        }}>
+          Failed to load profile: {fetchError instanceof Error ? fetchError.message : 'Unknown error'}. 
+          You can still fill in the form below — data will be saved when you click Save.
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={{
@@ -276,14 +380,14 @@ export function ProfilePage() {
           <Button
             type="submit"
             variant="primary"
+            loading={isSaving}
+            disabled={isSaving}
             style={saved ? { background: 'var(--color-success)', pointerEvents: 'none' } : undefined}
           >
-            {saved ? 'Saved ✓' : 'Save Profile'}
+            {saved ? 'Saved ✓' : isSaving ? 'Saving…' : 'Save Profile'}
           </Button>
         </div>
       </form>
     </div>
   )
 }
-
-
