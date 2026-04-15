@@ -221,10 +221,15 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
             </button>
 
             {pdf && (
-              <a
-                href={pdf.public_url}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => {
+                  const a = document.createElement('a')
+                  a.href = pdf.public_url
+                  a.download = resume.filename || 'tailored-resume.pdf'
+                  document.body.appendChild(a)
+                  a.click()
+                  document.body.removeChild(a)
+                }}
                 aria-label="Download PDF"
                 title="Download PDF"
                 className="history-action-btn"
@@ -238,11 +243,10 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
                   color: 'var(--color-text-muted)',
                   transition:
                     'background var(--transition-interactive), color var(--transition-interactive)',
-                  textDecoration: 'none',
                 }}
               >
                 <Download size={16} />
-              </a>
+              </button>
             )}
 
             <button
