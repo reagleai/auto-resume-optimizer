@@ -128,33 +128,23 @@ export function ProfilePage() {
     )
   }
 
-  // ── Fetch error ──────────────────────────────────────────────
-  if (isFetchError) {
-    return (
-      <div style={{
-        maxWidth: 'var(--content-narrow)',
-        margin: '0 auto',
-        padding: 'var(--space-6)',
-        animation: 'pageIn 0.6s ease',
-      }}>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-xl)', fontWeight: 600, marginBottom: 'var(--space-2)' }}>
-          Your Profile
-        </h1>
-        <div style={{
-          padding: 'var(--space-4)',
-          background: 'var(--color-error-highlight)',
-          borderLeft: '3px solid var(--color-error)',
-          borderRadius: 'var(--radius-md)',
-          fontSize: 'var(--text-sm)',
-          color: 'var(--color-error)',
-          marginBottom: 'var(--space-4)',
-        }}>
-          Failed to load profile: {fetchError instanceof Error ? fetchError.message : 'Unknown error'}. 
-          You can still fill in the form below — data will be saved when you click Save.
-        </div>
-      </div>
-    )
-  }
+
+  // Error banner markup (rendered inline, not as early return)
+  const fetchErrorBanner = isFetchError ? (
+    <div style={{
+      padding: 'var(--space-4)',
+      background: 'var(--color-error-highlight)',
+      borderLeft: '3px solid var(--color-error)',
+      borderRadius: 'var(--radius-md)',
+      fontSize: 'var(--text-sm)',
+      color: 'var(--color-error)',
+      marginBottom: 'var(--space-4)',
+    }}>
+      Could not load saved profile: {fetchError instanceof Error ? fetchError.message : 'Unknown error'}. 
+      You can still fill in the form below — data will be saved when you click Save.
+    </div>
+  ) : null
+
 
   return (
     <div style={{
@@ -171,6 +161,8 @@ export function ProfilePage() {
         <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>
           Set once. Used on every resume generation run.
         </p>
+
+        {fetchErrorBanner}
 
         {/* Completeness progress */}
         <div style={{ marginTop: 'var(--space-4)' }}>
