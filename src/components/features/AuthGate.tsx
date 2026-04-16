@@ -232,7 +232,7 @@ export function AuthGate({ children }: AuthGateProps) {
               marginBottom: 'var(--space-1)',
             }}
           >
-            Resume Tailor
+            Resumatch
           </h1>
           <p
             style={{

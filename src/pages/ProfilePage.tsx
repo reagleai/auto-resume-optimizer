@@ -279,7 +279,7 @@ export function ProfilePage() {
             required
             type="url"
             placeholder="https://your-n8n-instance.com/webhook/..."
-            helperText="The POST endpoint of your n8n Resume Tailor workflow."
+            helperText="The POST endpoint of your n8n Resumatch workflow."
             error={errors.webhookUrl?.message}
             {...register('webhookUrl', {
               required: 'This field is required',

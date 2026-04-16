@@ -43,7 +43,7 @@ export function TopBar() {
             letterSpacing: '-1px',
           }}
         >
-          RT
+          RM
         </span>
         <span
           style={{
@@ -55,7 +55,7 @@ export function TopBar() {
             lineHeight: 1,
           }}
         >
-          Resume Tailor
+          Resumatch
         </span>
       </div>
 
