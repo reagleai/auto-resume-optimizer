@@ -25,14 +25,18 @@ About a minute later, your custom-tailored PDF resume naturally appears on scree
 I designed this architecture by cleanly separating the user interface from the heavy AI processing. Every technical choice was made to prioritize reliability, speed, and document safety.
 
 **The User Interface**
+
 The website itself is built to be fast, responsive, and incredibly simple to use. It manages your profile, displays your past resumes, and handles the loading screens while you wait. I used modern web frameworks so it feels like a premium, polished consumer product rather than a clunky internal script.
 
 **Data Storage**
+
 To remember your history, I integrated a secure cloud database. It safely stores your profile and keeps an organized historical record of every resume you generate—including the actual PDF files—so you never lose a past application.
 
 **The Automation Pipeline**
+
 This is where the real work happens. When you click generate, the website sends your information to a 9-stage external automation pipeline. Processing this separately means the website stays lightning fast and doesn't unexpectedly freeze while the AI is thinking. 
 
 **Smart AI Processing**
+
 Inside that pipeline, we carefully take your resume apart. Rather than asking an AI to rewrite the entire document blindly—which often ruins formatting or invents false facts—the pipeline isolates exactly what needs changing. The system extracts intelligence from the job description, plans a narrative, maps out keywords, and finally refines the text using 4 distinct AI steps. Because the AI steps only return text, we save all your original formatting separately and safely reconnect the new text back into your layout before converting it to a final PDF.
 
