@@ -1,9 +1,14 @@
-import React from 'react'
+import React, { useState, lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AuthGate } from '@/components/features/AuthGate'
-import App from './App'
+import { LandingPage } from '@/components/landing/LandingPage'
 import './styles/globals.css'
+
+// Lazy-load App so the Supabase client and all tool-gated modules
+// are only imported after authentication succeeds.
+const App = lazy(() => import('./App'))
+
+const SESSION_KEY = 'rt_unlocked'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -14,12 +19,46 @@ const queryClient = new QueryClient({
   },
 })
 
+function AppEntry() {
+  const [isUnlocked, setIsUnlocked] = useState(
+    () => sessionStorage.getItem(SESSION_KEY) === 'true'
+  )
+
+  if (isUnlocked) {
+    return (
+      <Suspense
+        fallback={
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--color-bg)',
+              color: 'var(--color-primary)',
+              fontFamily: 'var(--font-heading)',
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              letterSpacing: '-1px',
+            }}
+          >
+            Resumatch
+          </div>
+        }
+      >
+        <App />
+      </Suspense>
+    )
+  }
+
+  return <LandingPage onUnlock={() => setIsUnlocked(true)} />
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <AuthGate>
-        <App />
-      </AuthGate>
+      <AppEntry />
     </QueryClientProvider>
   </React.StrictMode>
 )
