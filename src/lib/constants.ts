@@ -1,6 +1,6 @@
 import type { LoadingStep, ProfileState } from '@/types'
 
-export const WEBHOOK_TIMEOUT_MS = 90_000 // 90 seconds
+export const WEBHOOK_TIMEOUT_MS = 600_000 // 10 minutes
 
 export const HISTORY_MAX_ITEMS = 20
 
