@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { Eye, EyeOff, Lock, ShieldAlert } from 'lucide-react'
+import { Eye, EyeOff, Lock, ShieldAlert, ShieldCheck } from 'lucide-react'
 
 const SESSION_KEY = 'rt_unlocked'
 const MAX_ATTEMPTS = 10
@@ -16,6 +16,21 @@ interface AccessSectionProps {
 }
 
 export function AccessSection({ onUnlock }: AccessSectionProps) {
+  // --- Expand/collapse ---
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  // --- Waitlist state ---
+  const [viewMode, setViewMode] = useState<'waitlist' | 'password'>('waitlist')
+  const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [preferences, setPreferences] = useState({
+    mustHaveKeywords: false,
+    aggressiveReframing: false,
+  })
+
+  // --- Password state (preserved exactly) ---
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -23,8 +38,8 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
   const [shake, setShake] = useState(false)
   const [isLockedOut, setIsLockedOut] = useState(false)
   const [cooldownRemaining, setCooldownRemaining] = useState(0)
-  const [isExpanded, setIsExpanded] = useState(false)
 
+  // --- Password handlers (preserved exactly) ---
   const handleUnlock = useCallback(() => {
     if (failedAttempts >= MAX_ATTEMPTS) {
       setIsLockedOut(true)
@@ -83,10 +98,54 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
 
   const isDisabled = !password || isValidating || isLockedOut || cooldownRemaining > 0
 
+  // --- Waitlist submit handler ---
+  // NOTE: In Vercel the env var is named N8N_Early_Access_Webhook.
+  // Vite requires the VITE_ prefix, so use VITE_N8N_Early_Access_Webhook
+  // in .env.local for local dev.
+  const handleWaitlistSubmit = useCallback(async () => {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError('Please enter a valid email address')
+      return
+    }
+    const webhookUrl = import.meta.env.VITE_N8N_Early_Access_Webhook
+    if (!webhookUrl) {
+      setEmailError('Submission is temporarily unavailable. Please try again later.')
+      return
+    }
+    setIsSubmitting(true)
+    setEmailError('')
+    try {
+      const res = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          preferences: {
+            mustHaveKeywords: preferences.mustHaveKeywords,
+            aggressiveReframing: preferences.aggressiveReframing,
+          },
+          source: 'resumatch-waitlist',
+          timestamp: new Date().toISOString(),
+        }),
+      })
+      if (res.ok) {
+        setIsSubmitting(false)
+        setIsSubmitted(true)
+      } else {
+        setIsSubmitting(false)
+        setEmailError('Something went wrong. Please try again.')
+      }
+    } catch {
+      setIsSubmitting(false)
+      setEmailError('Something went wrong. Please try again.')
+    }
+  }, [email, preferences])
+
   return (
     <section id="access" className="landing-section" style={{ paddingTop: 'var(--space-16)', paddingBottom: 'var(--space-16)' }}>
       <div style={{ maxWidth: '440px', margin: '0 auto', textAlign: 'center' }}>
-        {/* Collapsed state: just a subtle prompt */}
+
+        {/* ===== COLLAPSED STATE ===== */}
         {!isExpanded ? (
           <button
             onClick={() => setIsExpanded(true)}
@@ -100,82 +159,224 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)' }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--color-divider)'; e.currentTarget.style.boxShadow = 'none' }}
           >
-            <Lock size={16} style={{ color: 'var(--color-primary)' }} />
             <span style={{ fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--color-text-muted)' }}>
-              Have access? Enter password to use the tool
+              Get Early Access
             </span>
           </button>
         ) : (
-          <div style={{ animation: 'cardIn 0.3s ease both' }}>
-            {/* Icon */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '56px', height: '56px', borderRadius: 'var(--radius-lg)', background: 'var(--color-primary-highlight)', marginBottom: 'var(--space-3)' }}>
-                {isLockedOut ? <ShieldAlert size={24} style={{ color: 'var(--color-error)' }} /> : <Lock size={24} style={{ color: 'var(--color-primary)' }} />}
-              </div>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', fontWeight: 500, color: isLockedOut ? 'var(--color-error)' : 'var(--color-text)', letterSpacing: '0.5px', wordSpacing: '0.1em', marginBottom: 'var(--space-1)' }}>
-                {isLockedOut ? 'Access locked' : 'Access the tool'}
-              </h3>
-              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)' }}>
-                {isLockedOut ? 'Reload the page to try again' : 'Enter the password to open Resumatch'}
-              </p>
-            </div>
+          <>
+            {/* ===== MODE A: WAITLIST ===== */}
+            {viewMode === 'waitlist' && (
+              <>
+                {!isSubmitted ? (
+                  <div style={{ animation: 'cardIn 0.3s ease both' }}>
+                    <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>Early Access</span>
 
-            {/* Input */}
-            <div style={{ position: 'relative', marginBottom: 'var(--space-3)', animation: shake ? 'authShake 0.4s ease' : undefined }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); if (error && cooldownRemaining <= 0) setError('') }}
-                onKeyDown={handleKeyDown}
-                placeholder="Enter password"
-                autoFocus
-                disabled={isValidating || isLockedOut}
-                style={{
-                  width: '100%', padding: 'var(--space-3) var(--space-4)', paddingRight: '48px',
-                  fontSize: 'var(--text-base)', fontFamily: 'var(--font-body)',
-                  background: 'var(--color-surface-offset)', border: `1.5px solid ${error ? 'var(--color-error)' : 'var(--color-border)'}`,
-                  borderRadius: 'var(--radius-lg)', color: 'var(--color-text)', outline: 'none',
-                  transition: 'border-color 0.2s ease, box-shadow 0.2s ease', boxSizing: 'border-box',
-                  opacity: isLockedOut ? 0.5 : 1,
-                }}
-                onFocus={(e) => { if (!error) { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--color-primary-highlight)' } }}
-                onBlur={(e) => { if (!error) { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' } }}
-              />
-              <button type="button" onClick={() => setShowPassword((v) => !v)} tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
+                    <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', fontWeight: 500, color: 'var(--color-text)', letterSpacing: '0.5px', wordSpacing: '0.1em', marginBottom: 'var(--space-1)' }}>
+                      Resumatch is in early access
+                    </h3>
 
-            {/* Error */}
-            {error && (
-              <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-error)', marginBottom: 'var(--space-3)', animation: 'pageIn 0.2s ease' }}>
-                {error}
-              </div>
+                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', lineHeight: 1.7, marginBottom: 'var(--space-6)' }}>
+                      We're onboarding a small group of job seekers to test and improve the product. Leave your email and we'll reach out when your spot is ready.
+                    </p>
+
+                    {/* Email input */}
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError('') }}
+                      style={{
+                        width: '100%', padding: 'var(--space-3) var(--space-4)',
+                        fontSize: 'var(--text-base)', fontFamily: 'var(--font-body)',
+                        background: 'var(--color-surface-offset)', border: `1.5px solid ${emailError ? 'var(--color-error)' : 'var(--color-border)'}`,
+                        borderRadius: 'var(--radius-lg)', color: 'var(--color-text)', outline: 'none',
+                        transition: 'border-color 0.2s ease, box-shadow 0.2s ease', boxSizing: 'border-box',
+                        marginBottom: 'var(--space-3)',
+                      }}
+                      onFocus={(e) => { if (!emailError) { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--color-primary-highlight)' } }}
+                      onBlur={(e) => { if (!emailError) { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' } }}
+                    />
+
+                    {/* Email error */}
+                    {emailError && (
+                      <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-error)', marginBottom: 'var(--space-3)', animation: 'pageIn 0.2s ease' }}>
+                        {emailError}
+                      </div>
+                    )}
+
+                    {/* Preference checkboxes */}
+                    <div style={{ textAlign: 'left', marginBottom: 'var(--space-4)' }}>
+                      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', marginBottom: 'var(--space-3)', display: 'block', textAlign: 'left', fontStyle: 'italic' }}>
+                        If you could shape how this tool works for you, what would you pick?
+                      </span>
+
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)', marginBottom: 'var(--space-3)', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={preferences.mustHaveKeywords}
+                          onChange={() => setPreferences(p => ({ ...p, mustHaveKeywords: !p.mustHaveKeywords }))}
+                          style={{ accentColor: 'var(--color-primary)', width: '16px', height: '16px', cursor: 'pointer', marginTop: '3px', flexShrink: 0 }}
+                        />
+                        <span style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text)', fontWeight: 500 }}>Always include specific keywords I care about</span>
+                          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', fontStyle: 'italic', lineHeight: 1.4 }}>e.g. your target role, tools, or stack you want visible</span>
+                        </span>
+                      </label>
+
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-2)', marginBottom: 'var(--space-3)', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={preferences.aggressiveReframing}
+                          onChange={() => setPreferences(p => ({ ...p, aggressiveReframing: !p.aggressiveReframing }))}
+                          style={{ accentColor: 'var(--color-primary)', width: '16px', height: '16px', cursor: 'pointer', marginTop: '3px', flexShrink: 0 }}
+                        />
+                        <span style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text)', fontWeight: 500 }}>Reframe my experience more boldly when it fits</span>
+                          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', fontStyle: 'italic', lineHeight: 1.4 }}>e.g. lead → drove, worked on → owned and shipped</span>
+                        </span>
+                      </label>
+                    </div>
+
+                    {/* Submit button */}
+                    <button
+                      onClick={handleWaitlistSubmit}
+                      disabled={isSubmitting}
+                      style={{
+                        width: '100%', padding: 'var(--space-3) var(--space-6)',
+                        fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'var(--font-body)',
+                        background: isSubmitting ? 'var(--color-surface-2)' : 'var(--color-primary)',
+                        color: isSubmitting ? 'var(--color-text-muted)' : '#fff',
+                        border: 'none', borderRadius: 'var(--radius-lg)',
+                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                        transition: 'all 0.2s ease', minHeight: '48px',
+                      }}
+                      onMouseEnter={(e) => { if (!isSubmitting) e.currentTarget.style.opacity = '0.9' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                    >
+                      {isSubmitting ? 'Submitting…' : 'Request Access →'}
+                    </button>
+
+                    {/* Switch to password */}
+                    <button
+                      onClick={() => setViewMode('password')}
+                      style={{
+                        fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)',
+                        marginTop: 'var(--space-4)', display: 'block',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        textDecoration: 'none', margin: 'var(--space-4) auto 0',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.textDecoration = 'underline' }}
+                      onMouseLeave={(e) => { e.currentTarget.style.textDecoration = 'none' }}
+                    >
+                      Already have access? →
+                    </button>
+                  </div>
+                ) : (
+                  /* ---- Submitted success state ---- */
+                  <div style={{ animation: 'cardIn 0.3s ease both' }}>
+                    <div style={{ marginBottom: 'var(--space-6)' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '56px', height: '56px', borderRadius: 'var(--radius-lg)', background: 'var(--color-primary-highlight)', marginBottom: 'var(--space-3)' }}>
+                        <ShieldCheck size={24} style={{ color: 'var(--color-primary)' }} />
+                      </div>
+                      <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', fontWeight: 500, color: 'var(--color-text)', letterSpacing: '0.5px', wordSpacing: '0.1em', marginBottom: 'var(--space-1)' }}>
+                        You're on the list.
+                      </h3>
+                      <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', lineHeight: 1.7 }}>
+                        We'll reach out when your spot is ready. Keep an eye on your inbox.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
-            {/* Unlock button */}
-            <button
-              onClick={handleUnlock}
-              disabled={isDisabled}
-              style={{
-                width: '100%', padding: 'var(--space-3) var(--space-6)',
-                fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'var(--font-body)',
-                background: isDisabled ? 'var(--color-surface-2)' : 'var(--color-primary)',
-                color: isDisabled ? 'var(--color-text-muted)' : '#fff',
-                border: 'none', borderRadius: 'var(--radius-lg)',
-                cursor: isDisabled ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s ease', minHeight: '48px',
-              }}
-              onMouseEnter={(e) => { if (!isDisabled) e.currentTarget.style.opacity = '0.9' }}
-              onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
-            >
-              {isLockedOut ? 'Locked — Reload Page' : cooldownRemaining > 0 ? `Wait ${cooldownRemaining}s…` : isValidating ? 'Verifying…' : 'Unlock'}
-            </button>
+            {/* ===== MODE B: PASSWORD ===== */}
+            {viewMode === 'password' && (
+              <div style={{ animation: 'cardIn 0.3s ease both' }}>
+                {/* Back button */}
+                <button
+                  onClick={() => { setViewMode('waitlist'); setPassword(''); setError(''); setShake(false) }}
+                  style={{
+                    fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    marginBottom: 'var(--space-4)', display: 'block',
+                  }}
+                >
+                  ← Back
+                </button>
 
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', marginTop: 'var(--space-4)' }}>
-              Session lasts until you close the tab
-            </p>
-          </div>
+                {/* Icon */}
+                <div style={{ marginBottom: 'var(--space-6)' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '56px', height: '56px', borderRadius: 'var(--radius-lg)', background: 'var(--color-primary-highlight)', marginBottom: 'var(--space-3)' }}>
+                    {isLockedOut ? <ShieldAlert size={24} style={{ color: 'var(--color-error)' }} /> : <Lock size={24} style={{ color: 'var(--color-primary)' }} />}
+                  </div>
+                  <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', fontWeight: 500, color: isLockedOut ? 'var(--color-error)' : 'var(--color-text)', letterSpacing: '0.5px', wordSpacing: '0.1em', marginBottom: 'var(--space-1)' }}>
+                    {isLockedOut ? 'Access locked' : 'Access the tool'}
+                  </h3>
+                  <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)' }}>
+                    {isLockedOut ? 'Reload the page to try again' : 'Enter the password to open Resumatch'}
+                  </p>
+                </div>
+
+                {/* Password input */}
+                <div style={{ position: 'relative', marginBottom: 'var(--space-3)', animation: shake ? 'authShake 0.4s ease' : undefined }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); if (error && cooldownRemaining <= 0) setError('') }}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Enter password"
+                    autoFocus
+                    disabled={isValidating || isLockedOut}
+                    style={{
+                      width: '100%', padding: 'var(--space-3) var(--space-4)', paddingRight: '48px',
+                      fontSize: 'var(--text-base)', fontFamily: 'var(--font-body)',
+                      background: 'var(--color-surface-offset)', border: `1.5px solid ${error ? 'var(--color-error)' : 'var(--color-border)'}`,
+                      borderRadius: 'var(--radius-lg)', color: 'var(--color-text)', outline: 'none',
+                      transition: 'border-color 0.2s ease, box-shadow 0.2s ease', boxSizing: 'border-box',
+                      opacity: isLockedOut ? 0.5 : 1,
+                    }}
+                    onFocus={(e) => { if (!error) { e.currentTarget.style.borderColor = 'var(--color-primary)'; e.currentTarget.style.boxShadow = '0 0 0 3px var(--color-primary-highlight)' } }}
+                    onBlur={(e) => { if (!error) { e.currentTarget.style.borderColor = 'var(--color-border)'; e.currentTarget.style.boxShadow = 'none' } }}
+                  />
+                  <button type="button" onClick={() => setShowPassword((v) => !v)} tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+
+                {/* Error */}
+                {error && (
+                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-error)', marginBottom: 'var(--space-3)', animation: 'pageIn 0.2s ease' }}>
+                    {error}
+                  </div>
+                )}
+
+                {/* Unlock button */}
+                <button
+                  onClick={handleUnlock}
+                  disabled={isDisabled}
+                  style={{
+                    width: '100%', padding: 'var(--space-3) var(--space-6)',
+                    fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'var(--font-body)',
+                    background: isDisabled ? 'var(--color-surface-2)' : 'var(--color-primary)',
+                    color: isDisabled ? 'var(--color-text-muted)' : '#fff',
+                    border: 'none', borderRadius: 'var(--radius-lg)',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.2s ease', minHeight: '48px',
+                  }}
+                  onMouseEnter={(e) => { if (!isDisabled) e.currentTarget.style.opacity = '0.9' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+                >
+                  {isLockedOut ? 'Locked — Reload Page' : cooldownRemaining > 0 ? `Wait ${cooldownRemaining}s…` : isValidating ? 'Verifying…' : 'Unlock'}
+                </button>
+
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', marginTop: 'var(--space-4)' }}>
+                  Session lasts until you close the tab
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 

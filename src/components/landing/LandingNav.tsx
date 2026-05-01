@@ -134,7 +134,7 @@ export function LandingNav() {
             e.currentTarget.style.color = 'var(--color-text-muted)'
           }}
         >
-          Access Tool
+          Get Early Access
         </a>
       </div>
     </nav>
