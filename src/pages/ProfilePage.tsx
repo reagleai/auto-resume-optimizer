@@ -153,7 +153,7 @@ export function ProfilePage() {
     }}>
       {/* Page Header */}
       <div style={{ marginBottom: 'var(--space-6)' }}>
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-xl)', fontWeight: 600, lineHeight: 1.15, marginBottom: 'var(--space-1)' }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-xl)', fontWeight: 500, lineHeight: 1.15, marginBottom: 'var(--space-1)' }}>
           Your Profile
         </h1>
         <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)' }}>

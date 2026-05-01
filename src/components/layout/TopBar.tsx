@@ -38,9 +38,9 @@ export function TopBar() {
             borderRadius: 'var(--radius-sm)',
             fontFamily: 'var(--font-heading)',
             fontSize: '1.1rem',
-            fontWeight: 700,
+            fontWeight: 500,
             color: 'var(--color-primary)',
-            letterSpacing: '-1px',
+            letterSpacing: '0.5px', wordSpacing: '0.1em',
           }}
         >
           RM
@@ -48,10 +48,10 @@ export function TopBar() {
         <span
           style={{
             fontFamily: 'var(--font-heading)',
-            fontWeight: 700,
+            fontWeight: 500,
             fontSize: '1.5rem',
             color: 'var(--color-primary)',
-            letterSpacing: '-1px',
+            letterSpacing: '0.5px', wordSpacing: '0.1em',
             lineHeight: 1,
           }}
         >

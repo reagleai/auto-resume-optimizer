@@ -44,7 +44,7 @@ export function EmptyState({ icon, heading, body, action, bordered }: EmptyState
       }}
     >
       <IconComponent size={48} style={{ color: 'var(--color-primary)', opacity: 0.4, marginBottom: 'var(--space-4)' }} />
-      <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--space-2)' }}>
+      <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-lg)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>
         {heading}
       </h3>
       <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', marginBottom: action ? 'var(--space-4)' : undefined }}>

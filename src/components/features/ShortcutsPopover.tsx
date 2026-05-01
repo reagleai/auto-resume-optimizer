@@ -37,7 +37,7 @@ export function ShortcutsPopover() {
           borderRadius: 'var(--radius-md)',
           color: 'var(--color-text-faint)',
           fontSize: 'var(--text-xs)',
-          fontWeight: 600,
+          fontWeight: 500,
           transition: 'background var(--transition-interactive), color var(--transition-interactive)',
         }}
       >
@@ -61,7 +61,7 @@ export function ShortcutsPopover() {
             animation: 'pageIn 180ms cubic-bezier(0.16, 1, 0.3, 1)',
           }}
         >
-          <h3 style={{ fontSize: 'var(--text-sm)', fontWeight: 600, marginBottom: 'var(--space-3)' }}>
+          <h3 style={{ fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-3)' }}>
             Keyboard Shortcuts
           </h3>
           {KEYBOARD_SHORTCUTS.map(({ keys, label }) => (
@@ -90,7 +90,7 @@ export function ShortcutsPopover() {
                       border: '1px solid var(--color-border)',
                       borderRadius: 'var(--radius-sm)',
                       fontSize: '11px',
-                      fontWeight: 600,
+                      fontWeight: 500,
                       color: 'var(--color-text)',
                       lineHeight: 1.4,
                     }}

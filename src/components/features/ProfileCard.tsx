@@ -34,7 +34,7 @@ export function ProfileCard() {
       <div style={{ minWidth: 0 }}>
         <div
           style={{
-            fontWeight: 600,
+            fontWeight: 500,
             fontSize: 'var(--text-sm)',
             lineHeight: 1.3,
             color: 'var(--color-text)',

@@ -66,7 +66,7 @@ export function MobileTabBar() {
                   background: 'var(--color-primary-highlight)',
                   color: 'var(--color-primary)',
                   fontSize: '9px',
-                  fontWeight: 700,
+                  fontWeight: 500,
                   padding: '0 5px',
                   borderRadius: 'var(--radius-full)',
                   lineHeight: 1.5,

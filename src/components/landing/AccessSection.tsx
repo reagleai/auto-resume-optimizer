@@ -112,7 +112,7 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
               <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '56px', height: '56px', borderRadius: 'var(--radius-lg)', background: 'var(--color-primary-highlight)', marginBottom: 'var(--space-3)' }}>
                 {isLockedOut ? <ShieldAlert size={24} style={{ color: 'var(--color-error)' }} /> : <Lock size={24} style={{ color: 'var(--color-primary)' }} />}
               </div>
-              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', fontWeight: 600, color: isLockedOut ? 'var(--color-error)' : 'var(--color-text)', letterSpacing: '-0.5px', marginBottom: 'var(--space-1)' }}>
+              <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.3rem', fontWeight: 500, color: isLockedOut ? 'var(--color-error)' : 'var(--color-text)', letterSpacing: '0.5px', wordSpacing: '0.1em', marginBottom: 'var(--space-1)' }}>
                 {isLockedOut ? 'Access locked' : 'Access the tool'}
               </h3>
               <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)' }}>
@@ -159,7 +159,7 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
               disabled={isDisabled}
               style={{
                 width: '100%', padding: 'var(--space-3) var(--space-6)',
-                fontSize: 'var(--text-sm)', fontWeight: 600, fontFamily: 'var(--font-body)',
+                fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'var(--font-body)',
                 background: isDisabled ? 'var(--color-surface-2)' : 'var(--color-primary)',
                 color: isDisabled ? 'var(--color-text-muted)' : '#fff',
                 border: 'none', borderRadius: 'var(--radius-lg)',

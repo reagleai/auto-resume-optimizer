@@ -53,9 +53,9 @@ export function LandingNav() {
             borderRadius: 'var(--radius-sm)',
             fontFamily: 'var(--font-heading)',
             fontSize: '1.1rem',
-            fontWeight: 700,
+            fontWeight: 500,
             color: 'var(--color-primary)',
-            letterSpacing: '-1px',
+            letterSpacing: '0.5px', wordSpacing: '0.1em',
           }}
         >
           RM
@@ -63,10 +63,10 @@ export function LandingNav() {
         <span
           style={{
             fontFamily: 'var(--font-heading)',
-            fontWeight: 700,
+            fontWeight: 500,
             fontSize: '1.5rem',
             color: 'var(--color-primary)',
-            letterSpacing: '-1px',
+            letterSpacing: '0.5px', wordSpacing: '0.1em',
             lineHeight: 1,
           }}
         >
@@ -117,7 +117,7 @@ export function LandingNav() {
             gap: 'var(--space-2)',
             padding: '8px 18px',
             fontSize: 'var(--text-xs)',
-            fontWeight: 600,
+            fontWeight: 500,
             fontFamily: 'var(--font-body)',
             color: 'var(--color-text-muted)',
             border: '1.5px solid var(--color-border)',

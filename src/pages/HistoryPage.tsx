@@ -62,7 +62,7 @@ export function HistoryPage() {
             style={{
               fontFamily: 'var(--font-heading)',
               fontSize: 'var(--text-xl)',
-              fontWeight: 600,
+              fontWeight: 500,
               lineHeight: 1.15,
               marginBottom: 'var(--space-1)',
             }}
@@ -189,7 +189,7 @@ export function HistoryPage() {
                     rel="noopener noreferrer"
                     style={{
                       fontSize: 'var(--text-xs)',
-                      fontWeight: 600,
+                      fontWeight: 500,
                       color: 'var(--color-primary)',
                       textDecoration: 'none',
                       padding: 'var(--space-1) var(--space-3)',
@@ -244,7 +244,7 @@ export function HistoryPage() {
                   rel="noopener noreferrer"
                   style={{
                     fontSize: 'var(--text-sm)',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     color: '#fff',
                     background: 'var(--color-primary)',
                     textDecoration: 'none',

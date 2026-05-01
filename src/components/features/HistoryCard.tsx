@@ -71,7 +71,7 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
           fontWeight: 800,
           fontFamily: 'var(--font-mono)',
           flexShrink: 0,
-          letterSpacing: '-0.5px',
+          letterSpacing: '0.5px', wordSpacing: '0.1em',
           marginTop: '2px',
         }}
       >
@@ -83,7 +83,7 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
         <div
           style={{
             fontSize: 'var(--text-sm)',
-            fontWeight: 600,
+            fontWeight: 500,
             whiteSpace: 'nowrap' as const,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -111,7 +111,7 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
                 padding: '1px 6px',
                 borderRadius: 'var(--radius-full)',
                 fontSize: '0.6rem',
-                fontWeight: 600,
+                fontWeight: 500,
               }}
             >
               PDF saved
@@ -160,7 +160,7 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
               disabled={isDeleting}
               style={{
                 fontSize: 'var(--text-xs)',
-                fontWeight: 600,
+                fontWeight: 500,
                 padding: '4px 10px',
                 borderRadius: 'var(--radius-full)',
                 background: 'var(--color-error)',
@@ -185,7 +185,7 @@ export function HistoryCard({ resume, index, isDeleting, onView, onDelete }: His
               disabled={isDeleting}
               style={{
                 fontSize: 'var(--text-xs)',
-                fontWeight: 600,
+                fontWeight: 500,
                 padding: '4px 10px',
                 borderRadius: 'var(--radius-full)',
                 background: 'transparent',

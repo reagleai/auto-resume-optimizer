@@ -39,8 +39,8 @@ function AppEntry() {
               color: 'var(--color-primary)',
               fontFamily: 'var(--font-heading)',
               fontSize: '1.5rem',
-              fontWeight: 700,
-              letterSpacing: '-1px',
+              fontWeight: 500,
+              letterSpacing: '0.5px', wordSpacing: '0.1em',
             }}
           >
             Resumatch

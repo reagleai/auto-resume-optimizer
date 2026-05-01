@@ -226,9 +226,9 @@ export function AuthGate({ children }: AuthGateProps) {
             style={{
               fontFamily: 'var(--font-heading)',
               fontSize: 'clamp(1.5rem, 3vw, 2rem)',
-              fontWeight: 700,
+              fontWeight: 500,
               color: isLockedOut ? 'var(--color-error)' : 'var(--color-primary)',
-              letterSpacing: '-1px',
+              letterSpacing: '0.5px', wordSpacing: '0.1em',
               marginBottom: 'var(--space-1)',
             }}
           >
@@ -340,7 +340,7 @@ export function AuthGate({ children }: AuthGateProps) {
             width: '100%',
             padding: 'var(--space-3) var(--space-6)',
             fontSize: 'var(--text-sm)',
-            fontWeight: 600,
+            fontWeight: 500,
             fontFamily: 'var(--font-body)',
             background: isDisabled ? 'var(--color-surface-2)' : 'var(--color-primary)',
             color: isDisabled ? 'var(--color-text-muted)' : '#fff',

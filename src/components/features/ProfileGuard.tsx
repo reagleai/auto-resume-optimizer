@@ -27,7 +27,7 @@ export function ProfileGuard() {
           onClick={() => navigate('/profile')}
           style={{
             color: 'var(--color-warning)',
-            fontWeight: 600,
+            fontWeight: 500,
             textDecoration: 'underline',
             textUnderlineOffset: '2px',
             background: 'none',

@@ -169,7 +169,7 @@ export function GeneratorPage() {
         {/* Profile guard or compact status card — hidden while initial fetch is in-flight */}
         {!profileLoading && (profileComplete ? <ProfileCard /> : <ProfileGuard />)}
 
-        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-xl)', fontWeight: 600, marginBottom: 'var(--space-6)' }}>
+        <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-xl)', fontWeight: 500, marginBottom: 'var(--space-6)' }}>
           Generate Resume
         </h1>
 

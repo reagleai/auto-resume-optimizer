@@ -26,7 +26,7 @@ export function Badge({ children, variant = 'default', className }: BadgeProps) 
         color: colors.color,
         fontFamily: 'var(--font-mono)',
         fontSize: '0.813rem',
-        fontWeight: 600,
+        fontWeight: 500,
         padding: '6px 12px',
         borderRadius: 'var(--radius-full)',
         border: `1px solid ${colors.bg}`,

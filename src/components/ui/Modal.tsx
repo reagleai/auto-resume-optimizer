@@ -59,7 +59,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         >
           <span style={{
             fontSize: 'var(--text-sm)',
-            fontWeight: 600,
+            fontWeight: 500,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',

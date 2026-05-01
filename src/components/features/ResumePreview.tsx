@@ -83,7 +83,7 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
           {/* Left — context label */}
           <span style={{
             fontSize: 'var(--text-sm)',
-            fontWeight: 600,
+            fontWeight: 500,
             color: 'var(--color-text)',
             display: 'flex',
             alignItems: 'center',
@@ -168,7 +168,7 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
               </div>
 
               <div>
-                <div style={{ fontSize: 'var(--text-lg)', fontWeight: 700, marginBottom: 'var(--space-1)' }}>
+                <div style={{ fontSize: 'var(--text-lg)', fontWeight: 500, marginBottom: 'var(--space-1)' }}>
                   Your resume is ready
                 </div>
                 <div style={{

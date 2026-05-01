@@ -46,10 +46,10 @@ export function HowItWorks() {
         style={{
           fontFamily: 'var(--font-heading)',
           fontSize: 'clamp(1.6rem, 3vw, 2.4rem)',
-          fontWeight: 700,
+          fontWeight: 500,
           color: 'var(--color-text)',
           textAlign: 'center',
-          letterSpacing: '-1px',
+          letterSpacing: '0.5px', wordSpacing: '0.1em',
           marginBottom: 'var(--space-4)',
         }}
       >
@@ -109,10 +109,10 @@ export function HowItWorks() {
               style={{
                 fontFamily: 'var(--font-heading)',
                 fontSize: 'clamp(1.1rem, 2vw, 1.3rem)',
-                fontWeight: 600,
+                fontWeight: 500,
                 color: 'var(--color-text)',
                 marginBottom: 'var(--space-3)',
-                letterSpacing: '-0.5px',
+                letterSpacing: '0.5px', wordSpacing: '0.1em',
               }}
             >
               {step.title}

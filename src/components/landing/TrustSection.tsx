@@ -22,7 +22,7 @@ export function TrustSection() {
   return (
     <section className="landing-section" style={{ paddingTop: 'var(--space-16)', paddingBottom: 'var(--space-16)', background: 'var(--color-surface)', borderTop: '1px solid var(--color-divider)', borderBottom: '1px solid var(--color-divider)' }}>
       <span className="section-label" style={{ textAlign: 'center', display: 'block' }}>User Control</span>
-      <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 700, color: 'var(--color-text)', textAlign: 'center', letterSpacing: '-1px', marginBottom: 'var(--space-4)' }}>
+      <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', fontWeight: 500, color: 'var(--color-text)', textAlign: 'center', letterSpacing: '0.5px', wordSpacing: '0.1em', marginBottom: 'var(--space-4)' }}>
         Refinement, not fabrication
       </h2>
       <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', maxWidth: '540px', margin: '0 auto', marginBottom: 'var(--space-12)', fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
@@ -35,7 +35,7 @@ export function TrustSection() {
             <div style={{ width: '44px', height: '44px', borderRadius: 'var(--radius-lg)', background: 'var(--color-primary-highlight)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-4)' }}>
               <p.icon size={20} style={{ color: 'var(--color-primary)' }} />
             </div>
-            <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 600, color: 'var(--color-text)', marginBottom: 'var(--space-3)', letterSpacing: '-0.5px' }}>
+            <h3 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.15rem', fontWeight: 500, color: 'var(--color-text)', marginBottom: 'var(--space-3)', letterSpacing: '0.5px', wordSpacing: '0.1em' }}>
               {p.title}
             </h3>
             <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-muted)', lineHeight: 1.7 }}>

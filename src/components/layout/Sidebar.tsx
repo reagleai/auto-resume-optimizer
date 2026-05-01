@@ -66,7 +66,7 @@ export function Sidebar() {
                     background: 'var(--color-primary-highlight)',
                     color: 'var(--color-primary)',
                     fontSize: '10px',
-                    fontWeight: 700,
+                    fontWeight: 500,
                     padding: '1px 7px',
                     borderRadius: 'var(--radius-full)',
                     lineHeight: 1.5,

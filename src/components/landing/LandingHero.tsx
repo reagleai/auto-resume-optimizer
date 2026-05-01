@@ -1,6 +1,21 @@
 import { ArrowRight, FileText } from 'lucide-react'
+import { useState, useEffect } from 'react'
+
+const HEADLINES = [
+  { main: "Rewritten by AI.", highlight: "Every claim still yours to defend." },
+  { main: "They hallucinate.", highlight: "We reposition what's already true." },
+  { main: "Resumes you can", highlight: "confidently defend in interviews." }
+]
 
 export function LandingHero() {
+  const [headlineIndex, setHeadlineIndex] = useState(0)
+
+  useEffect(() => {
+    setHeadlineIndex(Math.floor(Math.random() * HEADLINES.length))
+  }, [])
+
+  const headline = HEADLINES[headlineIndex]
+
   return (
     <section
       className="landing-section"
@@ -42,16 +57,17 @@ export function LandingHero() {
         style={{
           fontFamily: 'var(--font-heading)',
           fontSize: 'clamp(2.2rem, 5vw, 3.8rem)',
-          fontWeight: 700,
+          fontWeight: 500,
           color: 'var(--color-text)',
-          letterSpacing: '-2px',
+          letterSpacing: '0px',
+          wordSpacing: '0.1em',
           lineHeight: 1.1,
           maxWidth: '800px',
           marginBottom: 'var(--space-6)',
         }}
       >
-        Resume tailoring that{' '}
-        <span style={{ color: 'var(--color-primary)' }}>actually works</span>
+        {headline.main}{' '}
+        <span style={{ color: 'var(--color-primary)' }}>{headline.highlight}</span>
       </h1>
 
       {/* Subtext */}
@@ -154,7 +170,7 @@ export function LandingHero() {
             <div
               style={{
                 fontSize: 'var(--text-sm)',
-                fontWeight: 600,
+                fontWeight: 500,
                 marginBottom: 'var(--space-4)',
                 color: 'var(--color-text)',
               }}
@@ -208,7 +224,7 @@ export function LandingHero() {
                 alignItems: 'center',
                 gap: 'var(--space-2)',
                 fontSize: 'var(--text-sm)',
-                fontWeight: 600,
+                fontWeight: 500,
                 marginBottom: 'var(--space-4)',
                 color: 'var(--color-primary)',
               }}
