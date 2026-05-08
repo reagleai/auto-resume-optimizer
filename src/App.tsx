@@ -37,6 +37,9 @@ function AppContent() {
         <Route path="/history" element={<HistoryPage />} />
         <Route path="*" element={<Navigate to="/generator" replace />} />
       </Routes>
+      <footer style={{ textAlign: 'center', padding: '2rem', fontSize: '0.875rem', color: 'var(--text-muted, #666)' }}>
+        Built by Ajay Sharma · <a href="https://www.linkedin.com/in/workwithajay/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>LinkedIn</a>
+      </footer>
     </AppShell>
   )
 }
