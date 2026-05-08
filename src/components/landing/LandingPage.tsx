@@ -66,6 +66,15 @@ export function LandingPage({ onUnlock }: LandingPageProps) {
         >
           Resumatch - AI-powered resume tailoring. Built as a product engineering case study.
         </p>
+        <p
+          style={{
+            fontSize: 'var(--text-xs)',
+            color: 'var(--color-text-faint)',
+            marginTop: 'var(--space-2)',
+          }}
+        >
+          Built by Ajay Sharma · <a href="https://www.linkedin.com/in/workwithajay/" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>LinkedIn</a>
+        </p>
       </footer>
     </div>
   )
