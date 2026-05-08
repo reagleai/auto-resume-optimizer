@@ -3,12 +3,12 @@ import { Eye, EyeOff, Lock, ShieldAlert } from 'lucide-react'
 
 /**
  * ══════════════════════════════════════════════════════════════════
- * AuthGate — Client-side password lock for the application
+ * AuthGate - Client-side password lock for the application
  * ══════════════════════════════════════════════════════════════════
  *
  * SECURITY MODEL & KNOWN LIMITATIONS:
  *
- * 1. BUNDLE EXPOSURE (CRITICAL — accepted risk):
+ * 1. BUNDLE EXPOSURE (CRITICAL - accepted risk):
  *    VITE_APP_PASSWORD is compiled into the client JS bundle at build time.
  *    Anyone can extract it from DevTools → Sources or by running:
  *      strings index.[hash].js | grep -i password
@@ -17,13 +17,13 @@ import { Eye, EyeOff, Lock, ShieldAlert } from 'lucide-react'
  *
  *    RECOMMENDED FUTURE FIX: Move password validation to a Vercel Edge
  *    Function or Supabase Edge Function that returns a signed JWT.
- *    The frontend should never see the password — only a token.
+ *    The frontend should never see the password - only a token.
  *
  * 2. DEVTOOLS BYPASS (inherent limitation):
  *    Since auth state lives in React state + sessionStorage, a user with
  *    DevTools access could set sessionStorage.setItem('rt_unlocked', 'true')
  *    and reload the page to bypass the gate. This is inherent to all
- *    client-side-only auth. No code fix exists — only server-side auth
+ *    client-side-only auth. No code fix exists - only server-side auth
  *    would solve this.
  *
  * 3. SESSION PERSISTENCE:
@@ -39,7 +39,7 @@ import { Eye, EyeOff, Lock, ShieldAlert } from 'lucide-react'
  * 4. BRUTE FORCE PROTECTION:
  *    Exponential backoff (2^n seconds) + hard lockout after 10 attempts.
  *    Attempt count is stored in a module-level variable (survives re-renders
- *    but resets on page reload — intentional).
+ *    but resets on page reload - intentional).
  * ══════════════════════════════════════════════════════════════════
  */
 
@@ -80,7 +80,7 @@ interface AuthGateProps {
 }
 
 export function AuthGate({ children }: AuthGateProps) {
-  // Check sessionStorage on initial render — no flash of password screen
+  // Check sessionStorage on initial render - no flash of password screen
   const [isUnlocked, setIsUnlocked] = useState(() => {
     return sessionStorage.getItem(SESSION_KEY) === 'true'
   })
@@ -117,7 +117,7 @@ export function AuthGate({ children }: AuthGateProps) {
     setTimeout(() => {
       const correctPassword = import.meta.env.VITE_APP_PASSWORD
       if (password === correctPassword) {
-        // Success — persist to sessionStorage
+        // Success - persist to sessionStorage
         sessionStorage.setItem(SESSION_KEY, 'true')
         setIsUnlocked(true)
         failedAttempts = 0 // Reset on success
@@ -360,7 +360,7 @@ export function AuthGate({ children }: AuthGateProps) {
           }}
         >
           {isLockedOut
-            ? 'Locked — Reload Page'
+            ? 'Locked - Reload Page'
             : cooldownRemaining > 0
               ? `Wait ${cooldownRemaining}s…`
               : isValidating

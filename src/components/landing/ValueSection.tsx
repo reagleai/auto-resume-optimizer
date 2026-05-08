@@ -4,7 +4,7 @@ const VALUES = [
   {
     icon: Clock,
     title: '~1 minute per resume',
-    body: 'Down from 20–30 minutes of manual editing per application. Generate, review, and submit — on a cycle that scales.',
+    body: 'Down from 20–30 minutes of manual editing per application. Generate, review, and submit - on a cycle that scales.',
   },
   {
     icon: Target,
@@ -14,12 +14,12 @@ const VALUES = [
   {
     icon: ShieldCheck,
     title: 'Factual integrity',
-    body: 'Titles, tenures, and company names are locked. Only positioning language and narrative framing change — never the underlying facts.',
+    body: 'Titles, tenures, and company names are locked. Only positioning language and narrative framing change - never the underlying facts.',
   },
   {
     icon: Layers,
     title: 'Structured, not random',
-    body: '4 targeted AI decisions across a 9-stage pipeline. Each resume section is rewritten independently with dedicated context — not a single monolithic prompt.',
+    body: '4 targeted AI decisions across a 9-stage pipeline. Each resume section is rewritten independently with dedicated context - not a single monolithic prompt.',
   },
 ]
 
@@ -31,7 +31,7 @@ export function ValueSection() {
         What becomes easier
       </h2>
       <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', maxWidth: '540px', margin: '0 auto', marginBottom: 'var(--space-12)', fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
-        The goal isn't to automate away judgment — it's to reduce the cognitive overhead of repetitive resume editing so you can focus on strategy.
+        The goal isn't to automate away judgment - it's to reduce the cognitive overhead of repetitive resume editing so you can focus on strategy.
       </p>
 
       <div className="landing-value-grid">

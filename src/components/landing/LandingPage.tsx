@@ -64,7 +64,7 @@ export function LandingPage({ onUnlock }: LandingPageProps) {
             color: 'var(--color-text-faint)',
           }}
         >
-          Resumatch — AI-powered resume tailoring. Built as a product engineering case study.
+          Resumatch - AI-powered resume tailoring. Built as a product engineering case study.
         </p>
       </footer>
     </div>

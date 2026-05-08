@@ -173,7 +173,7 @@ export function HistoryPage() {
         {viewingResume && (
           viewingResume.resume_html ? (
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              {/* Download bar — only when a PDF is available */}
+              {/* Download bar - only when a PDF is available */}
               {viewingResume.resume_pdfs?.[0] && (
                 <div
                   style={{

@@ -14,7 +14,7 @@ const STEPS = [
     icon: Cpu,
     title: 'AI Refines Your Resume',
     description:
-      'A structured 9-stage pipeline rewrites your Summary, Experience, Projects, and Skills — each independently.',
+      'A structured 9-stage pipeline rewrites your Summary, Experience, Projects, and Skills - each independently.',
     detail: 'Your real background is the source of truth. Titles, tenures, and company names are locked.',
   },
   {

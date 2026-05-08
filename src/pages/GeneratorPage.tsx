@@ -11,7 +11,7 @@ import { LOADING_STEPS } from '@/lib/constants'
 import { useSaveResumeMutation } from '@/hooks/useResumeHistory'
 
 /**
- * Unique run counter — incremented each time a generation is started.
+ * Unique run counter - incremented each time a generation is started.
  * Used to prevent stale timers/responses from an older run from
  * overwriting the state of a newer run.
  */
@@ -166,7 +166,7 @@ export function GeneratorPage() {
     <div className="generator-page">
       {/* Left Panel: Input form */}
       <div className="gen-left">
-        {/* Profile guard or compact status card — hidden while initial fetch is in-flight */}
+        {/* Profile guard or compact status card - hidden while initial fetch is in-flight */}
         {!profileLoading && (profileComplete ? <ProfileCard /> : <ProfileGuard />)}
 
         <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: 'var(--text-xl)', fontWeight: 500, marginBottom: 'var(--space-6)' }}>

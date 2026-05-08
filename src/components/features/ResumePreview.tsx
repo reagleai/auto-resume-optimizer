@@ -80,7 +80,7 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
         {/* ── Toolbar ─────────────────────────────────────── */}
         <div className="preview-toolbar">
-          {/* Left — context label */}
+          {/* Left - context label */}
           <span style={{
             fontSize: 'var(--text-sm)',
             fontWeight: 500,
@@ -106,7 +106,7 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
             )}
           </span>
 
-          {/* Right — action buttons */}
+          {/* Right - action buttons */}
           <div className="preview-toolbar-actions">
             {/* Primary download button */}
             <button
@@ -180,7 +180,7 @@ export function ResumePreview({ result, status, loadingStep, error, onRetry, onC
                 </div>
               </div>
 
-              {/* Primary download button — large, full-width on mobile */}
+              {/* Primary download button - large, full-width on mobile */}
               <button
                 onClick={handleDownload}
                 className="preview-download-btn-hero"

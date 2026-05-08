@@ -4,7 +4,7 @@ import { useAppStore } from '@/store/appStore'
 const STORAGE_KEY = 'rt-theme'
 
 /**
- * Initialize theme — Portfolio pattern:
+ * Initialize theme - Portfolio pattern:
  * 1. Check localStorage for saved preference
  * 2. Fall back to system preference
  * 3. Default to dark (Portfolio default)

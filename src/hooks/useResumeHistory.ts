@@ -104,7 +104,7 @@ async function saveResume(payload: SaveResumePayload): Promise<{ id: string }> {
 
       if (uploadError) {
         if (import.meta.env.DEV) console.error('[saveResume] Storage upload error:', uploadError)
-        // Resume history row is saved — PDF upload is best-effort
+        // Resume history row is saved - PDF upload is best-effort
         return row
       }
 
@@ -124,7 +124,7 @@ async function saveResume(payload: SaveResumePayload): Promise<{ id: string }> {
         console.error('[saveResume] PDF row insert error:', pdfRowError)
       }
     } catch (pdfErr) {
-      // Non-fatal — resume_history row is already saved
+      // Non-fatal - resume_history row is already saved
       if (import.meta.env.DEV) console.error('[saveResume] PDF save error:', pdfErr)
     }
   }

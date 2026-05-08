@@ -30,7 +30,7 @@ The website itself is built to be fast, responsive, and incredibly simple to use
 
 **Data Storage**
 
-To remember your history, I integrated a secure cloud database. It safely stores your profile and keeps an organized historical record of every resume you generate—including the actual PDF files—so you never lose a past application.
+To remember your history, I integrated a secure cloud database. It safely stores your profile and keeps an organized historical record of every resume you generate-including the actual PDF files-so you never lose a past application.
 
 **The Automation Pipeline**
 
@@ -38,5 +38,5 @@ This is where the real work happens. When you click generate, the website sends 
 
 **Smart AI Processing**
 
-Inside that pipeline, we carefully take your resume apart. Rather than asking an AI to rewrite the entire document blindly—which often ruins formatting or invents false facts—the pipeline isolates exactly what needs changing. The system extracts intelligence from the job description, plans a narrative, maps out keywords, and finally refines the text using 4 distinct AI steps. Because the AI steps only return text, we save all your original formatting separately and safely reconnect the new text back into your layout before converting it to a final PDF.
+Inside that pipeline, we carefully take your resume apart. Rather than asking an AI to rewrite the entire document blindly-which often ruins formatting or invents false facts-the pipeline isolates exactly what needs changing. The system extracts intelligence from the job description, plans a narrative, maps out keywords, and finally refines the text using 4 distinct AI steps. Because the AI steps only return text, we save all your original formatting separately and safely reconnect the new text back into your layout before converting it to a final PDF.
 

@@ -40,7 +40,7 @@ export function LandingNav() {
         transition: 'all 0.3s ease',
       }}
     >
-      {/* Logo — same pattern as TopBar */}
+      {/* Logo - same pattern as TopBar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         <span
           style={{
@@ -74,9 +74,9 @@ export function LandingNav() {
         </span>
       </div>
 
-      {/* Right — Theme toggle + Access Tool CTA */}
+      {/* Right - Theme toggle + Access Tool CTA */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-        {/* Theme toggle — same pattern as TopBar */}
+        {/* Theme toggle - same pattern as TopBar */}
         <button
           onClick={toggleTheme}
           aria-label="Toggle light/dark mode"

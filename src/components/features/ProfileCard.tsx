@@ -2,7 +2,7 @@ import { CheckCircle } from 'lucide-react'
 
 /**
  * Compact profile-status banner shown on the Generator page.
- * Communicates that the profile is ready — no metadata details.
+ * Communicates that the profile is ready - no metadata details.
  * Profile editing is available via the sidebar/nav Profile page.
  */
 export function ProfileCard() {
@@ -22,7 +22,7 @@ export function ProfileCard() {
         animation: 'cardIn 280ms cubic-bezier(0.16, 1, 0.3, 1)',
       }}
     >
-      {/* Decorative success icon — paired with visible text, so aria-hidden */}
+      {/* Decorative success icon - paired with visible text, so aria-hidden */}
       <CheckCircle
         size={20}
         aria-hidden="true"

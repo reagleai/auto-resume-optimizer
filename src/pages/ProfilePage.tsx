@@ -139,7 +139,7 @@ export function ProfilePage() {
       color: 'var(--color-error)',
       marginBottom: 'var(--space-4)',
     }}>
-      Could not load saved profile. You can still fill in the form below — data will be saved when you click Save.
+      Could not load saved profile. You can still fill in the form below - data will be saved when you click Save.
     </div>
   ) : null
 

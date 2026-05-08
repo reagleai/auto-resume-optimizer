@@ -30,7 +30,7 @@ export function BeforeAfter() {
         What refinement looks like
       </h2>
       <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', maxWidth: '540px', margin: '0 auto', marginBottom: 'var(--space-10)', fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
-        The system transforms vague, generic content into sharp, role-specific language — grounded in your actual experience.
+        The system transforms vague, generic content into sharp, role-specific language - grounded in your actual experience.
       </p>
 
       {/* Section tabs */}

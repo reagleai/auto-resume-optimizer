@@ -25,7 +25,7 @@ export function TopBar() {
         flexShrink: 0,
       }}
     >
-      {/* Logo — Portfolio's nav-logo pattern: bordered box with initials */}
+      {/* Logo - Portfolio's nav-logo pattern: bordered box with initials */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
         <span
           style={{
@@ -63,7 +63,7 @@ export function TopBar() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
         <ShortcutsPopover />
 
-        {/* Theme toggle — Portfolio circular button */}
+        {/* Theme toggle - Portfolio circular button */}
         <button
           onClick={toggleTheme}
           aria-label="Toggle light/dark mode"

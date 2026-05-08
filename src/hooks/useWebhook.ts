@@ -207,7 +207,7 @@ export function useWebhook(options?: UseWebhookOptions) {
           throw new Error('Received a response but couldn\u2019t parse it. The workflow may need a \u201CRespond to Webhook\u201D node configured.')
         }
 
-        // Validate response — accept multiple key names from n8n
+        // Validate response - accept multiple key names from n8n
         const html = data.htmlContent || data.finalResumeHtml || data.baseResumeHtml
         if (!html) {
           throw new Error('Missing resume HTML in response. Got keys: ' + Object.keys(data).join(', '))

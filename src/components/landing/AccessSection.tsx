@@ -368,7 +368,7 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
                   onMouseEnter={(e) => { if (!isDisabled) e.currentTarget.style.opacity = '0.9' }}
                   onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
                 >
-                  {isLockedOut ? 'Locked — Reload Page' : cooldownRemaining > 0 ? `Wait ${cooldownRemaining}s…` : isValidating ? 'Verifying…' : 'Unlock'}
+                  {isLockedOut ? 'Locked - Reload Page' : cooldownRemaining > 0 ? `Wait ${cooldownRemaining}s…` : isValidating ? 'Verifying…' : 'Unlock'}
                 </button>
 
                 <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-faint)', marginTop: 'var(--space-4)' }}>

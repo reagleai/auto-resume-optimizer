@@ -4,12 +4,12 @@ const PILLARS = [
   {
     icon: UserCheck,
     title: 'You provide the raw material',
-    body: 'Your base resume, your work history, your project details. The system never invents experience — it starts and ends with your actual background.',
+    body: 'Your base resume, your work history, your project details. The system never invents experience - it starts and ends with your actual background.',
   },
   {
     icon: Brain,
     title: 'AI sharpens the signal',
-    body: 'The system extracts hiring intent from the JD, maps your experience against it, and rewrites with stronger positioning. It refines — it doesn\'t fabricate.',
+    body: 'The system extracts hiring intent from the JD, maps your experience against it, and rewrites with stronger positioning. It refines - it doesn\'t fabricate.',
   },
   {
     icon: FileOutput,
@@ -26,7 +26,7 @@ export function TrustSection() {
         Refinement, not fabrication
       </h2>
       <p style={{ textAlign: 'center', color: 'var(--color-text-muted)', maxWidth: '540px', margin: '0 auto', marginBottom: 'var(--space-12)', fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
-        No hallucinated experience. No invented metrics. Just clearer framing of what you've actually done — adapted for the role you're targeting.
+        No hallucinated experience. No invented metrics. Just clearer framing of what you've actually done - adapted for the role you're targeting.
       </p>
 
       <div className="landing-steps-grid">
