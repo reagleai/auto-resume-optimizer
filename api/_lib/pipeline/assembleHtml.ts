@@ -40,7 +40,7 @@ export function assembleHtml(args: {
   const sectionMap: Record<string, string> = {};
   for (const s of sections) sectionMap[s.section_id] = s.html;
 
-  const expected = ['summary', 'experience', 'projects', 'skills'];
+  const expected = ['summary', 'skills'];
   const missing = expected.filter((id) => !(id in sectionMap));
   if (missing.length) {
     throw new Error(`[assembler] Missing sections: ${missing.join(', ')}.`);

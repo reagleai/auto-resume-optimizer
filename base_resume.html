@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ajay Sharma Resume</title>
+  <style>
+    :root {
+      --text: #111;
+      --muted: #444;
+      --line: #111;
+      --paper: #fff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      overflow: hidden;
+      background: var(--paper);
+      padding: 14px 28px 10px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: .2px;
+      line-height: 1;
+    }
+
+    .contact {
+      margin-top: 5px;
+      font-size: 14px;
+      color: var(--text);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+
+    .contact>*+*::before {
+      content: "  |  ";
+      color: var(--muted);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .section {
+      margin-top: 9px;
+    }
+
+    h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      letter-spacing: .6px;
+      font-weight: 700;
+      border-bottom: 1.5px solid var(--line);
+      padding-bottom: 2px;
+    }
+
+    .summary,
+    .skill-line {
+      margin: 0 0 3px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .entry {
+      margin-bottom: 6px;
+    }
+
+    .entry-head,
+    .edu-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .org {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .role {
+      margin-top: 1px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .meta {
+      font-size: 13px;
+      color: var(--text);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    ul {
+      margin: 3px 0 0 18px;
+      padding: 0;
+    }
+
+    li {
+      margin: 0 0 2px;
+      font-size: 14px;
+      line-height: 1.28;
+    }
+
+    .pipe {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .edu-row {
+      margin-bottom: 4px;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        max-height: 297mm;
+        padding: 14px 28px 10px;
+        box-shadow: none;
+        margin: 0;
+      }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>AJAY SHARMA</h1>
+      <div class="contact">
+        <span>AI Ops Team Lead @Turing&nbsp</span>
+        <span><a href="https://www.linkedin.com/in/workwithajay/" target="_blank"
+            rel="noopener noreferrer">LinkedIn&nbsp</a></span>
+        <span><a href="https://ajay.protonaiagents.com" target="_blank"
+            rel="noopener noreferrer">Portfolio&nbsp</a></span>
+        <span><a href="mailto:sharma.ajay.jobs@gmail.com" target="_blank"
+            rel="noopener noreferrer">sharma.ajay.jobs@gmail.com&nbsp</a></span>
+        <span>+919414040410&nbsp</span>
+        <span> HelloPM Fellow</span>
+      </div>
+    </header>
+
+    <section class="section">
+      <h2>SUMMARY</h2>
+      <p class="summary">Product-focused professional with 2.9+ years across AI evaluation and product operations, supporting LLM quality workflows for leading AI labs and Fortune 500 teams, and building AI-native projects grounded in user research, backend execution, and practical product thinking shaped by firsthand exposure to user pain points and workflow trade-offs.</p>
+    </section>
+
+    <section class="section">
+      <h2>EXPERIENCE</h2>
+
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            <div class="org">Turing</div>
+            <div class="role">Team Lead (Promoted from Research Analyst)</div>
+          </div>
+          <div class="meta">
+            <div>Remote</div>
+            <div>Jun 2024 – Apr 2026</div>
+          </div>
+        </div>
+        <ul>
+          <li>Directed a 3–4 person team on frontier-LLM benchmarking, setting review standards, resolving workflow issues, and escalating quality risks early to improve submission reliability and keep team output consistent as guidelines changed.</li>
+          <li>Built adversarial multi-turn benchmarks across memory, coherence, instruction retention, and version-editing tasks, exposing long-context model failures and improving the quality and usefulness of evaluation data for downstream review.</li>
+          <li>Instituted an 8-step rubric review before submission, catching contradictions, vague criteria, and coverage gaps early to reduce scoring failures, improve reviewer alignment, and strengthen dataset reliability at scale over time.</li>
+          <li>Corrected recurring false positives in an internal LLM judge by escalating edge cases from live reviews, improving QA decisions and making automated evaluation signals more dependable in practice for the broader review team.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            <div class="org">Preplaced</div>
+            <div class="role">Associate Product Operations Manager</div>
+          </div>
+          <div class="meta">
+            <div>Gurugram, India</div>
+            <div>Apr 2023 – Apr 2024</div>
+          </div>
+        </div>
+        <ul>
+          <li>Drove trial-management changes using Mixpanel signals, booking outcomes, post-trial feedback, and 20–25 mentor interviews, improving trial quality and conversion intent while deliberately reducing low-fit demand and mentor overload.</li>
+          <li>Defined a structured post-trial mentorship plan from follow-up user insights, creating a reusable decision asset that reached about 60% adoption and made conversion conversations clearer, more consistent, and easier to scale.</li>
+          <li>Converted completed trials to paid plans at a 25–30% rate through needs discovery, objection handling, and product education, while giving founders direct insight into conversion drivers, user hesitation, and post-trial drop-off points.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section">
+      <h2>PROJECTS</h2>
+
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            <div class="org">Signal - Returns Discovery Tool <span class="pipe">|</span> <a
+                href="https://signal.protonaiagents.com/" target="_blank" rel="noopener noreferrer">View Prototype</a>
+            </div>
+          </div>
+          <div class="meta">Feb 2026 – Mar 2026</div>
+        </div>
+        <ul>
+          <li>Identified that Returns PMs spend 7-8 hrs/week stitching 6+ disconnected sources, driving intuition-led prioritization; built Signal to synthesize overnight data into ranked, cited problems - targeting 2 hrs/week discovery time.</li>
+          <li>Architected one RAG per source to prevent contamination, parallel specialist LLMs per source feeding a Master LLM for synthesis, and a Judge LLM validating output against BI metrics before problems are ranked and surfaced.</li>
+          <li>Designed a Grounded % score per insight and split-pane citations pane - linking every ranked problem to raw source evidence so PMs can verify claims and walk into leadership reviews with data-backed assertions, not instinct.</li>
+        </ul>
+      </article>
+
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            <div class="org">Swiggy Instamart Retention Feature <span class="pipe">|</span> <a
+                href="https://smartcartrecommendations.protonaiagents.com/" target="_blank"
+                rel="noopener noreferrer">View Prototype</a></div>
+          </div>
+          <div class="meta">Dec 2025 – Jan 2026</div>
+        </div>
+        <ul>
+          <li>Identified that 64% of Planner users walk to local shops for forgotten items — and each offline trip makes the next order offline too; prototyped Smart Cart to surface what's missing at the cart step before the session ends.</li>
+          <li>Built two suggestion layers: a rule-based engine that responds in under 3 seconds as a guaranteed fallback, and Gemini API on top that personalises by cart contents and time of day — with no personal user data sent to the model.</li>
+          <li>Designed a 4-week A/B test on 125K Planners — tracking 18% suggestion acceptance first to confirm relevance, then +1.2 items per basket and +10% repeat orders to confirm the feature stops Planners from drifting to local shops.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section">
+      <h2>SKILLS</h2>
+      <p class="skill-line"><strong>Product Skills:</strong> User Research, A/B Testing, Funnel Optimization, GTM,
+        Hypothesis Validation, Retention Modeling, PRD</p>
+      <p class="skill-line"><strong>Analytics:</strong> SQL, Mixpanel, Behavioral Analytics, Metric Definition, Data
+        Visualization, Google Analytics</p>
+      <p class="skill-line"><strong>AI &amp; Operations:</strong> RLHF, SFT Annotation, LLM Evaluation, Prompt
+        Assessment, Hallucination Pattern Analysis</p>
+      <p class="skill-line"><strong>Tools &amp; Platforms:</strong> n8n, React, Supabase, Jira, Figma, Google AI Studio,
+        Postman, Notion</p>
+    </section>
+
+    <section class="section">
+      <h2>EDUCATION</h2>
+      <article class="edu-row">
+        <div><strong>HelloPM</strong> <span class="pipe">|</span> Product Management Cohort (AI Specialization)</div>
+        <div class="meta">Nov 2025 – Present</div>
+      </article>
+      <article class="edu-row">
+        <div><strong>REVA University</strong> <span class="pipe">|</span> B.Tech in Electrical &amp; Computer
+          Engineering</div>
+        <div class="meta">2019 – 2023</div>
+      </article>
+    </section>
+  </main>
+</body>
+
+</html>

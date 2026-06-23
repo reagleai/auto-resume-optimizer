@@ -590,9 +590,92 @@ p {
   padding-top: var(--space-6);
 }
 
+.resume-upload-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-offset);
+}
+
+.resume-upload-card.has-resume {
+  border-style: solid;
+  border-color: var(--color-success);
+  background: var(--color-success-highlight);
+}
+
+.resume-upload-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  color: var(--color-primary);
+  background: var(--color-primary-highlight);
+}
+
+.resume-upload-copy {
+  min-width: 0;
+}
+
+.resume-upload-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.resume-upload-description {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.resume-template-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-success);
+}
+
+.resume-import-message {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.resume-import-message.error {
+  color: var(--color-error);
+  background: var(--color-error-highlight);
+  border-left: 3px solid var(--color-error);
+}
+
+.resume-import-message.success {
+  color: var(--color-success);
+  background: var(--color-success-highlight);
+  border-left: 3px solid var(--color-success);
+}
+
 @media (max-width: 767px) {
   .profile-field-row {
     grid-template-columns: 1fr;
+  }
+
+  .resume-upload-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .resume-upload-card button {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .profile-actions-wrapper {

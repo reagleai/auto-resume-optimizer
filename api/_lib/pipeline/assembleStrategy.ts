@@ -210,10 +210,8 @@ export function assembleStrategy(input: {
   completenesscheck.allSectionsPresent =
     completenesscheck.header.present &&
     completenesscheck.summary.present &&
-    completenesscheck.experience.present &&
-    completenesscheck.projects.present &&
+    (completenesscheck.experience.present || completenesscheck.projects.present) &&
     completenesscheck.skills.present &&
-    completenesscheck.education.present &&
     completenesscheck.baseHtml.present;
 
   return {

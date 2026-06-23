@@ -18,6 +18,7 @@ import { refineSections } from './pipeline/refineSection.js';
 import { assembleHtml } from './pipeline/assembleHtml.js';
 import { preparePdf, buildFilename } from './pipeline/preparePdf.js';
 import { renderPdf } from './pdf.js';
+import { assertResumeUsesBaseTemplate } from './resumeImport/template.js';
 import type { GenerateInput } from './pipeline/types.js';
 
 type StageName = 'extract_jd' | 'narrative' | 'keywords' | 'assemble_strategy' | 'refine' | 'finalize';
@@ -98,6 +99,7 @@ export async function createJob(rawInput: Record<string, any>): Promise<string> 
   const input = normalizeInput(rawInput);
   if (!input.jd) throw new Error('Missing required field: jd');
   if (!input.baseResumeHtml) throw new Error('Missing required field: baseResumeHtml');
+  assertResumeUsesBaseTemplate(input.baseResumeHtml);
 
   const supa = getAdminClient();
   const { data, error } = await supa

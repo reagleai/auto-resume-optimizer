@@ -34,9 +34,9 @@ async function refineOne(item: SplitItem): Promise<RefinedSection> {
 export async function refineSections(items: SplitItem[]): Promise<RefinedSection[]> {
   const results = await Promise.all(items.map(refineOne));
 
-  const expected = ['summary', 'experience', 'projects', 'skills'];
+  const expected = items.map((item) => item.current_edit_object.section_id);
   const found = results.map((r) => r.section_id);
-  const missing = expected.filter((id) => !found.includes(id as any));
+  const missing = expected.filter((id) => !found.includes(id));
   if (missing.length) {
     throw new Error(`[refine] Missing refined sections: ${missing.join(', ')}.`);
   }

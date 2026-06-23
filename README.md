@@ -9,6 +9,12 @@ This tool was initially built for myself as an AI Product Manager, but it serves
 ## The User Journey
 You start by setting up a one-time profile with your base resume and basic contact information. 
 
+The profile accepts a current resume as a text-based PDF (up to 4 MB). The backend
+extracts its text with Mozilla PDF.js, maps the facts into the repository's
+[`base_resume.html`](base_resume.html), and runs two LLM audit/correction passes
+against the source text and rendered HTML. The HTML template is locked; uploaded
+resume content can change, but the app does not accept alternate templates yet.
+
 When you find a new job posting, you simply open the application, paste in the raw job description, and add any specific keywords you want to make sure are included.
 
 You click generate, and the app takes over. Instead of leaving you waiting in the dark, the screen updates to show you exactly what the system is doing behind the scenes. 
@@ -46,6 +52,10 @@ Inside that pipeline, we carefully take your resume apart. Rather than asking an
 
 The automation pipeline now runs as **Vercel serverless functions** in [`api/`](api/) — there is **no n8n dependency**. LLM calls go through **OpenRouter** (swappable via [`api/_lib/llm.ts`](api/_lib/llm.ts)) and HTML→PDF goes through **PDFShift** (swappable via [`api/_lib/pdf.ts`](api/_lib/pdf.ts)).
 
+PDF→text import is handled locally by **Mozilla PDF.js**; no additional document
+extraction account or API key is required. Scanned/image-only PDFs are rejected
+because OCR is not currently enabled.
+
 **Flow:** the SPA `POST`s to `/api/generate`, which creates a row in `resumatch_jobs` and processes the pipeline in the background (a resumable state machine — [`api/_lib/jobs.ts`](api/_lib/jobs.ts)). The frontend polls `GET /api/jobs/:id` for progress and the final PDF. Each stage is a pure module under [`api/_lib/pipeline/`](api/_lib/pipeline/).
 
 ### 1. Database (Supabase)
@@ -64,6 +74,6 @@ npm install
 npm run dev          # SPA only (Vite)
 vercel dev           # SPA + /api functions together (needs the Vercel CLI)
 npm run typecheck:api # typecheck the serverless functions
+npm run test:resume-import # PDF extraction, locked template, and two audit loops
 npm run test:pipeline # end-to-end pipeline check (uses .env.local keys)
 ```
-

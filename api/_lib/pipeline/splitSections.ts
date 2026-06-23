@@ -123,12 +123,17 @@ export function splitSections(strategy: StrategyResult): SplitItem[] {
     skills: skillsPlainLen(resumecontent.skills),
   };
 
-  const defs: Array<{ section_id: SectionEditObject['section_id']; sourcecontent: any; sectionmeta: any; len: number }> = [
+  const allDefs: Array<{ section_id: SectionEditObject['section_id']; sourcecontent: any; sectionmeta: any; len: number }> = [
     { section_id: 'summary', sourcecontent: resumecontent.summary, sectionmeta: { type: 'scalar', chars: lens.summary }, len: lens.summary },
     { section_id: 'experience', sourcecontent: resumecontent.experience, sectionmeta: experienceMeta(resumecontent.experience), len: lens.experience },
     { section_id: 'projects', sourcecontent: resumecontent.projects, sectionmeta: projectsMeta(resumecontent.projects), len: lens.projects },
     { section_id: 'skills', sourcecontent: resumecontent.skills, sectionmeta: skillsMeta(resumecontent.skills), len: lens.skills },
   ];
+  const defs = allDefs.filter((def) => {
+    if (def.section_id === 'experience') return resumecontent.experience.length > 0;
+    if (def.section_id === 'projects') return resumecontent.projects.length > 0;
+    return true;
+  });
 
   return defs.map((def, idx) => ({
     baseResumeHtml,

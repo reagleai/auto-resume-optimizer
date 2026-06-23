@@ -1,23 +1,38 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
-import { ChevronDown } from 'lucide-react'
+import { CheckCircle, ChevronDown, FileText, Upload } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 import { useToast } from '@/hooks/useToast'
 import { useProfileQuery, useProfileMutation } from '@/hooks/useProfile'
 import { Input } from '@/components/ui/Input'
-import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { ProfileState } from '@/types'
 import { DEFAULT_PROFILE } from '@/lib/constants'
 
 const REQUIRED_FIELDS: (keyof ProfileState)[] = ['firstName', 'lastName', 'baseResumeHtml']
+const MAX_RESUME_BYTES = 4 * 1024 * 1024
+
+interface ResumeImportResponse {
+  firstName: string
+  lastName: string
+  baseResumeHtml: string
+  report: {
+    pages: number
+    extractedCharacters: number
+    reviewPasses: number
+  }
+}
 
 export function ProfilePage() {
   const setProfile = useAppStore((s) => s.setProfile)
   const { toast } = useToast()
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [isImporting, setIsImporting] = useState(false)
+  const [importError, setImportError] = useState('')
+  const [importReport, setImportReport] = useState<ResumeImportResponse['report'] | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // ── Supabase data fetching via React Query ──────────────────
   const {
@@ -36,6 +51,8 @@ export function ProfilePage() {
     handleSubmit,
     watch,
     reset,
+    setValue,
+    clearErrors,
     formState: { errors },
   } = useForm<ProfileState>({
     defaultValues: initialValues,
@@ -89,6 +106,53 @@ export function ProfilePage() {
 
   const resumeLength = watchedValues.baseResumeHtml?.length || 0
   const isSaving = profileMutation.isPending
+  const hasResume = resumeLength > 0
+
+  const importResume = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    if (file.type && file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      setImportError('Please choose a PDF resume.')
+      return
+    }
+    if (file.size > MAX_RESUME_BYTES) {
+      setImportError('Resume PDF is too large. Maximum size is 4 MB.')
+      return
+    }
+
+    setIsImporting(true)
+    setImportError('')
+    setImportReport(null)
+    try {
+      const response = await fetch('/api/import-resume', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/pdf',
+          'X-Resume-Filename': encodeURIComponent(file.name),
+        },
+        body: file,
+      })
+      const body = await response.json().catch(() => ({})) as Partial<ResumeImportResponse> & { error?: string }
+      if (!response.ok || !body.baseResumeHtml) {
+        throw new Error(body.error || `Import failed with HTTP ${response.status}`)
+      }
+
+      setValue('firstName', body.firstName || '', { shouldDirty: true, shouldValidate: true })
+      setValue('lastName', body.lastName || '', { shouldDirty: true, shouldValidate: true })
+      setValue('baseResumeHtml', body.baseResumeHtml, { shouldDirty: true, shouldValidate: true })
+      clearErrors(['firstName', 'lastName', 'baseResumeHtml'])
+      setImportReport(body.report ?? null)
+      toast('Resume imported and verified twice. Save your profile to continue.', 'success')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Resume import failed.'
+      setImportError(message)
+      toast(`Resume import failed: ${message.substring(0, 90)}`, 'error')
+    } finally {
+      setIsImporting(false)
+    }
+  }
 
   // ── Loading skeleton ─────────────────────────────────────────
   if (isFetching) {
@@ -243,18 +307,65 @@ export function ProfilePage() {
           }}>
             Base Resume
           </div>
-          <Textarea
-            id="input-baseResumeHtml"
-            label="Base Resume HTML"
-            required
-            rows={14}
-            monospace
-            charCount
-            currentLength={resumeLength}
-            placeholder="Paste your full resume HTML here. This is the source template the AI will tailor for each job application."
-            error={errors.baseResumeHtml?.message}
-            {...register('baseResumeHtml', { required: 'This field is required', maxLength: { value: 500_000, message: 'Resume HTML is too large (max 500KB)' } })}
+          <input
+            type="hidden"
+            {...register('baseResumeHtml', {
+              required: 'Upload your current resume PDF',
+              maxLength: { value: 500_000, message: 'Resume HTML is too large (max 500KB)' },
+            })}
           />
+          <input
+            ref={fileInputRef}
+            className="sr-only"
+            type="file"
+            accept="application/pdf,.pdf"
+            onChange={importResume}
+            aria-label="Upload current resume PDF"
+          />
+
+          <div className={`resume-upload-card${hasResume ? ' has-resume' : ''}`}>
+            <div className="resume-upload-icon" aria-hidden="true">
+              {hasResume ? <FileText size={24} /> : <Upload size={24} />}
+            </div>
+            <div className="resume-upload-copy">
+              <div className="resume-upload-title">
+                {hasResume ? 'Current resume is ready' : 'Upload your current resume'}
+              </div>
+              <div className="resume-upload-description">
+                PDF only, up to 4 MB. Text is extracted locally on the server, placed into the locked
+                base template, then checked and corrected in two LLM review passes.
+              </div>
+              {hasResume && (
+                <div className="resume-template-status">
+                  <CheckCircle size={14} aria-hidden="true" />
+                  <span>base_resume.html · {resumeLength.toLocaleString()} characters</span>
+                </div>
+              )}
+            </div>
+            <Button
+              type="button"
+              variant={hasResume ? 'secondary' : 'primary'}
+              loading={isImporting}
+              disabled={isImporting}
+              leftIcon={!isImporting ? <Upload size={16} /> : undefined}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {isImporting ? 'Importing and checking…' : hasResume ? 'Replace PDF' : 'Choose PDF'}
+            </Button>
+          </div>
+
+          {errors.baseResumeHtml?.message && (
+            <span className="field-error-msg">{errors.baseResumeHtml.message}</span>
+          )}
+          {importError && (
+            <div className="resume-import-message error" role="alert">{importError}</div>
+          )}
+          {importReport && (
+            <div className="resume-import-message success" role="status">
+              Imported {importReport.pages} page{importReport.pages === 1 ? '' : 's'} and completed{' '}
+              {importReport.reviewPasses} accuracy checks.
+            </div>
+          )}
         </div>
 
         {/* Section C: Advanced */}
@@ -323,7 +434,7 @@ export function ProfilePage() {
             type="submit"
             variant="primary"
             loading={isSaving}
-            disabled={isSaving}
+            disabled={isSaving || isImporting}
             style={saved ? { background: 'var(--color-success)', pointerEvents: 'none' } : undefined}
           >
             {saved ? 'Saved ✓' : isSaving ? 'Saving…' : 'Save Profile'}
