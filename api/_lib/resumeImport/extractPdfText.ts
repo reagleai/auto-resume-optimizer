@@ -1,7 +1,10 @@
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-
 const MAX_PDF_PAGES = 10;
 const MAX_EXTRACTED_CHARACTERS = 50_000;
+
+async function loadPdfJs() {
+  const mod = await import('pdfjs-dist/legacy/build/pdf.mjs');
+  return mod as { getDocument: typeof import('pdfjs-dist').getDocument };
+}
 
 interface PositionedText {
   text: string;
@@ -43,6 +46,7 @@ export async function extractPdfText(buffer: Buffer): Promise<{ text: string; pa
     throw new Error('The uploaded file is not a valid PDF.');
   }
 
+  const { getDocument } = await loadPdfJs();
   const loadingTask = getDocument({
     data: new Uint8Array(buffer),
     useSystemFonts: true,
