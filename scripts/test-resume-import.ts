@@ -1,5 +1,4 @@
 import { readFileSync } from 'node:fs';
-import { extractPdfText } from '../api/_lib/resumeImport/extractPdfText.js';
 import {
   importResumeFromText,
   RESUME_IMPORT_REVIEW_PASSES,
@@ -14,33 +13,6 @@ import type { ImportedResumeData } from '../api/_lib/resumeImport/types.js';
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`ASSERT FAILED: ${message}`);
   console.log(`  ✓ ${message}`);
-}
-
-function minimalPdf(text: string): Buffer {
-  const escaped = text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
-  const stream = `BT /F1 11 Tf 72 720 Td (${escaped}) Tj ET`;
-  const objects = [
-    '<< /Type /Catalog /Pages 2 0 R >>',
-    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
-    `<< /Length ${Buffer.byteLength(stream)} >>\nstream\n${stream}\nendstream`,
-  ];
-
-  let pdf = '%PDF-1.4\n';
-  const offsets = [0];
-  objects.forEach((object, index) => {
-    offsets.push(Buffer.byteLength(pdf));
-    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
-  });
-  const xref = Buffer.byteLength(pdf);
-  pdf += `xref\n0 ${objects.length + 1}\n`;
-  pdf += '0000000000 65535 f \n';
-  for (const offset of offsets.slice(1)) {
-    pdf += `${String(offset).padStart(10, '0')} 00000 n \n`;
-  }
-  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
-  return Buffer.from(pdf);
 }
 
 const resume: ImportedResumeData = {
@@ -79,14 +51,9 @@ async function main() {
     'base template CSS remains byte-for-byte unchanged',
   );
 
-  console.log('\n[2] PDF text extraction');
+  console.log('\n[2] Two-pass import verification');
   const sourceLine =
     'Riya Mehta product analyst riya@example.com Example Labs Product Analyst 2023 Present SQL Mixpanel activation improved by 18 percent.';
-  const extracted = await extractPdfText(minimalPdf(sourceLine));
-  assert(extracted.pages === 1, 'one PDF page is read');
-  assert(extracted.text.includes('Riya Mehta'), 'PDF text is extracted');
-
-  console.log('\n[3] Two-pass import verification');
   const replies = [
     JSON.stringify(resume),
     JSON.stringify({
@@ -124,7 +91,7 @@ async function main() {
   assertResumeUsesBaseTemplate(imported.baseResumeHtml, template);
 
   if (process.env.RUN_LIVE_RESUME_IMPORT === '1') {
-    console.log('\n[4] Live LLM accuracy check');
+    console.log('\n[3] Live LLM accuracy check');
     const liveSource = `Riya Mehta
 Email: riya@example.com
 Phone: +91 99999 11111

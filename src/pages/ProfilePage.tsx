@@ -7,6 +7,7 @@ import { useProfileQuery, useProfileMutation } from '@/hooks/useProfile'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { extractTextFromPDF } from '@/lib/pdfExtractor'
 import type { ProfileState } from '@/types'
 import { DEFAULT_PROFILE } from '@/lib/constants'
 
@@ -126,13 +127,14 @@ export function ProfilePage() {
     setImportError('')
     setImportReport(null)
     try {
+      // Step 1: Extract text from PDF in the browser (no server round-trip for parsing)
+      const extracted = await extractTextFromPDF(file)
+
+      // Step 2: Send extracted text to server for LLM template mapping + audit
       const response = await fetch('/api/import-resume', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/pdf',
-          'X-Resume-Filename': encodeURIComponent(file.name),
-        },
-        body: file,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: extracted.text, pages: extracted.pages }),
       })
       const body = await response.json().catch(() => ({})) as Partial<ResumeImportResponse> & { error?: string }
       if (!response.ok || !body.baseResumeHtml) {
@@ -332,8 +334,8 @@ export function ProfilePage() {
                 {hasResume ? 'Current resume is ready' : 'Upload your current resume'}
               </div>
               <div className="resume-upload-description">
-                PDF only, up to 4 MB. Text is extracted locally on the server, placed into the locked
-                base template, then checked and corrected in two LLM review passes.
+                PDF only, up to 4 MB. Text is extracted in your browser, then placed into the locked
+                base template and checked in two LLM review passes.
               </div>
               {hasResume && (
                 <div className="resume-template-status">
