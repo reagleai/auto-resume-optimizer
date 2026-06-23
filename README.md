@@ -40,3 +40,30 @@ This is where the real work happens. When you click generate, the website sends 
 
 Inside that pipeline, we carefully take your resume apart. Rather than asking an AI to rewrite the entire document blindly-which often ruins formatting or invents false facts-the pipeline isolates exactly what needs changing. The system extracts intelligence from the job description, plans a narrative, maps out keywords, and finally refines the text using 4 distinct AI steps. Because the AI steps only return text, we save all your original formatting separately and safely reconnect the new text back into your layout before converting it to a final PDF.
 
+---
+
+## Architecture & local setup (no n8n)
+
+The automation pipeline now runs as **Vercel serverless functions** in [`api/`](api/) — there is **no n8n dependency**. LLM calls go through **OpenRouter** (swappable via [`api/_lib/llm.ts`](api/_lib/llm.ts)) and HTML→PDF goes through **PDFShift** (swappable via [`api/_lib/pdf.ts`](api/_lib/pdf.ts)).
+
+**Flow:** the SPA `POST`s to `/api/generate`, which creates a row in `resumatch_jobs` and processes the pipeline in the background (a resumable state machine — [`api/_lib/jobs.ts`](api/_lib/jobs.ts)). The frontend polls `GET /api/jobs/:id` for progress and the final PDF. Each stage is a pure module under [`api/_lib/pipeline/`](api/_lib/pipeline/).
+
+### 1. Database (Supabase)
+Run [`supabase/migrations/0001_resumatch.sql`](supabase/migrations/0001_resumatch.sql) in the Supabase SQL editor. It is **create-only** and namespaces everything under `resumatch_` (safe to run on a shared project).
+
+### 2. Environment
+Copy the values in [`.env.local`](.env.local):
+- Frontend (`VITE_*`): Supabase URL + anon key, app password.
+- Server (never `VITE_`): `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `PDFSHIFT_API_KEY`.
+
+In production, set the same vars in the Vercel project settings.
+
+### 3. Run
+```bash
+npm install
+npm run dev          # SPA only (Vite)
+vercel dev           # SPA + /api functions together (needs the Vercel CLI)
+npm run typecheck:api # typecheck the serverless functions
+npm run test:pipeline # end-to-end pipeline check (uses .env.local keys)
+```
+

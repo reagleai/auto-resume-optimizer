@@ -5,18 +5,17 @@ export const WEBHOOK_TIMEOUT_MS = 600_000 // 10 minutes
 export const HISTORY_MAX_ITEMS = 20
 
 export const LOADING_STEPS: LoadingStep[] = [
-  { icon: 'zap',          label: 'Connecting to workflow...',      duration: 5000  },
-  { icon: 'brain',        label: 'Extracting JD intelligence...',  duration: 10000 },
-  { icon: 'search',       label: 'Planning keyword insertions...', duration: 8000  },
-  { icon: 'pen-line',     label: 'Rewriting resume sections...',   duration: 10000 },
-  { icon: 'check-circle', label: 'Finalizing and assembling...',   duration: 0     },
+  { icon: 'zap',          label: 'Starting up...',                 duration: 0 },
+  { icon: 'brain',        label: 'Extracting JD intelligence...',  duration: 0 },
+  { icon: 'search',       label: 'Planning keyword insertions...', duration: 0 },
+  { icon: 'pen-line',     label: 'Rewriting resume sections...',   duration: 0 },
+  { icon: 'check-circle', label: 'Finalizing and assembling...',   duration: 0 },
 ]
 
 export const DEFAULT_PROFILE: ProfileState = {
   firstName: '',
   lastName: '',
   baseResumeHtml: '',
-  webhookUrl: '',
   maxgrowthpct: 8,
   companynamefallback: 'unknown-company',
   roletitlefallback: 'target-role',

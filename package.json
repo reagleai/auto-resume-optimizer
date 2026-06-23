@@ -5,22 +5,29 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "vercel dev",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck:api": "tsc -p api/tsconfig.json --noEmit",
+    "test:pipeline": "tsx --env-file=.env.local scripts/test-pipeline.ts"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "@types/dompurify": "^3.0.5",
+    "@types/node": "^22.10.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vercel/node": "^5.1.0",
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "tailwindcss": "^4.2.2",
+    "tsx": "^4.19.2",
     "typescript": "~6.0.2",
     "vite": "^8.0.4"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.2",
+    "@vercel/functions": "^2.0.0",
     "@tanstack/react-query": "^5.99.0",
     "clsx": "^2.1.1",
     "dompurify": "^3.4.0",

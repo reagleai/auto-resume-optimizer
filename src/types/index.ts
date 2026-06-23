@@ -2,7 +2,6 @@ export interface ProfileState {
   firstName: string;
   lastName: string;
   baseResumeHtml: string;
-  webhookUrl: string;
   maxgrowthpct: number;
   companynamefallback: string;
   roletitlefallback: string;
@@ -56,7 +55,8 @@ export interface LoadingStep {
 
 export type Theme = 'light' | 'dark';
 
-export interface WebhookPayload {
+/** Payload POSTed to the backend /api/generate endpoint. */
+export interface GenerateInput {
   firstName: string;
   lastName: string;
   baseResumeHtml: string;
@@ -65,17 +65,28 @@ export interface WebhookPayload {
   maxgrowthpct: number;
   companynamefallback: string;
   roletitlefallback: string;
-  templateVersion: 'v1-html-json';
 }
 
-export interface WebhookResponse {
-  baseResumeHtml?: string;
-  htmlContent?: string;
-  finalResumeHtml?: string;
-  filename?: string;
-  pdfFilename?: string;
-  companyname?: string;
-  roletitle?: string;
+export type JobStatus = 'queued' | 'processing' | 'complete' | 'error';
+
+/** Final pipeline output stored on a completed job. */
+export interface JobResult {
+  filename: string;
+  companyname: string;
+  roletitle: string;
+  pdf_url: string;
+  history_id: string;
+  format: 'pdf';
+}
+
+/** Shape returned by GET /api/jobs/:id. */
+export interface Job {
+  jobId: string;
+  status: JobStatus;
+  step: number;
+  stage: string;
+  result: JobResult | null;
+  error: string | null;
 }
 
 // ── Supabase: resume_history + resume_pdfs ─────────────────────
@@ -101,16 +112,4 @@ export interface SavedResumeWithPdf {
   job_description: string;
   keywords: string;
   resume_pdfs: SavedResumePdf[];
-}
-
-/** Payload for saving a generated resume to Supabase */
-export interface SaveResumePayload {
-  companyName: string;
-  roleTitle: string;
-  filename: string;
-  resumeHtml: string;
-  format: 'html' | 'pdf';
-  jobDescription: string;
-  keywords: string;
-  pdfBlob?: Blob;
 }

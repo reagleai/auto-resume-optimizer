@@ -1,128 +1,27 @@
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
-import { useWebhook } from '@/hooks/useWebhook'
+import { useGenerate } from '@/hooks/useGenerate'
 import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
 import { ProfileCard } from '@/components/features/ProfileCard'
 import { ProfileGuard } from '@/components/features/ProfileGuard'
 import { ResumePreview } from '@/components/features/ResumePreview'
-import { LOADING_STEPS } from '@/lib/constants'
-import { useSaveResumeMutation } from '@/hooks/useResumeHistory'
-
-/**
- * Unique run counter - incremented each time a generation is started.
- * Used to prevent stale timers/responses from an older run from
- * overwriting the state of a newer run.
- */
-let globalRunId = 0
 
 export function GeneratorPage() {
   const isProfileComplete = useAppStore((s) => s.isProfileComplete)
   const profileLoading = useAppStore((s) => s.profileLoading)
   const generator = useAppStore((s) => s.generator)
   const setGeneratorField = useAppStore((s) => s.setGeneratorField)
-  const setLoadingStep = useAppStore((s) => s.setLoadingStep)
   const resetGenerator = useAppStore((s) => s.resetGenerator)
   const previewHtml = useAppStore((s) => s.previewHtml)
   const setPreviewHtml = useAppStore((s) => s.setPreviewHtml)
 
-  // ── Save-to-history mutation (non-blocking, fire-and-forget) ──
-  const saveResume = useSaveResumeMutation()
-  const hasSavedRef = useRef(false)
-
-  const { generate } = useWebhook({
-    onGenerated: (data) => {
-      if (hasSavedRef.current) return
-      hasSavedRef.current = true
-      saveResume.mutate(data, {
-        onError: () => {
-          useAppStore.getState().addToast(
-            'Resume displayed, but saving to history failed.',
-            'info'
-          )
-        },
-      })
-    },
-  })
-
-  /** Stores timeout IDs for the current step-progression sequence */
-  const stepTimersRef = useRef<ReturnType<typeof setTimeout>[]>([])
-  /** The run ID that the current set of timers belongs to */
-  const activeRunIdRef = useRef<number>(0)
+  // Loading-step progression is now driven by the real job status (see
+  // useGenerate → setLoadingStep), so no client-side timers are needed.
+  const { generate } = useGenerate()
 
   const profileComplete = isProfileComplete()
-
-  /**
-   * Clear all pending step-progression timers.
-   * Called on unmount, when generation completes/errors, or
-   * when a new generation starts (to avoid timer bleed).
-   */
-  const clearStepTimers = useCallback(() => {
-    stepTimersRef.current.forEach(clearTimeout)
-    stepTimersRef.current = []
-  }, [])
-
-  /**
-   * Start the deterministic step-progression timer sequence.
-   * Steps 1–4 advance on fixed intervals. Step 5 persists
-   * indefinitely until the real backend response arrives.
-   *
-   * Each timer checks the active runId before setting state
-   * to prevent stale updates from a previous generation run.
-   */
-  const startStepProgression = useCallback((runId: number) => {
-    // Always begin at step 0
-    setLoadingStep(0)
-
-    let elapsed = 0
-    const timers: ReturnType<typeof setTimeout>[] = []
-
-    for (let i = 1; i < LOADING_STEPS.length; i++) {
-      const prevDuration = LOADING_STEPS[i - 1].duration
-      // Step 5 (index 4) has duration 0 = persist forever; no timer needed
-      if (prevDuration <= 0) break
-      elapsed += prevDuration
-      const stepIdx = i
-      timers.push(
-        setTimeout(() => {
-          // Guard: only update if this run is still the active one
-          if (activeRunIdRef.current === runId) {
-            setLoadingStep(stepIdx)
-          }
-        }, elapsed)
-      )
-    }
-
-    stepTimersRef.current = timers
-  }, [setLoadingStep])
-
-  // Drive step progression when loading starts; clean up when status changes
-  useEffect(() => {
-    if (generator.status === 'loading') {
-      // Reset save guard for the new generation run
-      hasSavedRef.current = false
-      // Bump run ID, clear any prior timers, start fresh sequence
-      const runId = ++globalRunId
-      activeRunIdRef.current = runId
-      clearStepTimers()
-      startStepProgression(runId)
-
-      return () => {
-        clearStepTimers()
-      }
-    }
-
-    // When status is no longer 'loading', ensure timers are cleaned up
-    clearStepTimers()
-  }, [generator.status, clearStepTimers, startStepProgression])
-
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      clearStepTimers()
-    }
-  }, [clearStepTimers])
 
   // If there's a preview from history, show it
   const effectiveResult = previewHtml
@@ -136,7 +35,7 @@ export function GeneratorPage() {
       }
     : generator.result
 
-  const effectiveStatus = previewHtml ? 'success' as const : generator.status
+  const effectiveStatus = previewHtml ? ('success' as const) : generator.status
 
   const handleGenerate = useCallback(async () => {
     setPreviewHtml(null)

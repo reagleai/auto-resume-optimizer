@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import type { ProfileState } from '@/types'
 import { DEFAULT_PROFILE } from '@/lib/constants'
 
-const REQUIRED_FIELDS: (keyof ProfileState)[] = ['firstName', 'lastName', 'baseResumeHtml', 'webhookUrl']
+const REQUIRED_FIELDS: (keyof ProfileState)[] = ['firstName', 'lastName', 'baseResumeHtml']
 
 export function ProfilePage() {
   const setProfile = useAppStore((s) => s.setProfile)
@@ -257,56 +257,7 @@ export function ProfilePage() {
           />
         </div>
 
-        {/* Section C: Webhook */}
-        <div style={{
-          padding: 'var(--space-6) 0',
-          borderBottom: '1px solid var(--color-divider)',
-        }}>
-          <div style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.813rem',
-            fontWeight: 500,
-            color: 'var(--color-primary)',
-            marginBottom: 'var(--space-4)',
-            textTransform: 'uppercase' as const,
-            letterSpacing: '3px',
-          }}>
-            Webhook
-          </div>
-          <Input
-            id="input-webhookUrl"
-            label="n8n Webhook URL"
-            required
-            type="url"
-            placeholder="https://your-n8n-instance.com/webhook/..."
-            helperText="The POST endpoint of your n8n Resumatch workflow."
-            error={errors.webhookUrl?.message}
-            {...register('webhookUrl', {
-              required: 'This field is required',
-              validate: (value) => {
-                try {
-                  const url = new URL(value)
-                  if (url.protocol !== 'https:') {
-                    return 'Only HTTPS URLs are allowed for secure data transmission'
-                  }
-                  const h = url.hostname
-                  if (
-                    h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '0.0.0.0' ||
-                    h.startsWith('10.') || h.startsWith('192.168.') || h.startsWith('169.254.') ||
-                    /^172\.(1[6-9]|2\d|3[01])\./.test(h)
-                  ) {
-                    return 'Private or internal network URLs are not allowed'
-                  }
-                  return true
-                } catch {
-                  return 'Invalid URL format'
-                }
-              },
-            })}
-          />
-        </div>
-
-        {/* Section D: Advanced */}
+        {/* Section C: Advanced */}
         <div style={{ padding: 'var(--space-6) 0' }}>
           <button
             type="button"

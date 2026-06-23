@@ -99,23 +99,17 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
   const isDisabled = !password || isValidating || isLockedOut || cooldownRemaining > 0
 
   // --- Waitlist submit handler ---
-  // NOTE: In Vercel the env var is named N8N_Early_Access_Webhook.
-  // Vite requires the VITE_ prefix, so use VITE_N8N_Early_Access_Webhook
-  // in .env.local for local dev.
+  // Posts to the backend /api/waitlist endpoint, which stores the signup in
+  // Supabase (resumatch_waitlist). Replaces the former n8n webhook.
   const handleWaitlistSubmit = useCallback(async () => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailError('Please enter a valid email address')
       return
     }
-    const webhookUrl = import.meta.env.VITE_N8N_Early_Access_Webhook
-    if (!webhookUrl) {
-      setEmailError('Submission is temporarily unavailable. Please try again later.')
-      return
-    }
     setIsSubmitting(true)
     setEmailError('')
     try {
-      const res = await fetch(webhookUrl, {
+      const res = await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

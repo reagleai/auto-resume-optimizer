@@ -71,7 +71,7 @@ function createStore(set: StoreSet, get: StoreGet): AppStore {
       set({ profileLoading: loading }, false, 'setProfileLoading'),
     isProfileComplete: () => {
       const p = get().profile
-      return !!(p.firstName.trim() && p.lastName.trim() && p.baseResumeHtml.trim() && p.webhookUrl.trim())
+      return !!(p.firstName.trim() && p.lastName.trim() && p.baseResumeHtml.trim())
     },
 
     // ── Generator ────────────────────────────────────────────────────
