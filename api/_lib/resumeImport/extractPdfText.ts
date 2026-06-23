@@ -1,6 +1,25 @@
 const MAX_PDF_PAGES = 10;
 const MAX_EXTRACTED_CHARACTERS = 50_000;
 
+/* ── DOMMatrix polyfill for Node.js ────────────────────────────────────
+   pdfjs-dist v5 calls `new DOMMatrix()` when building text transforms.
+   Node.js doesn't provide DOMMatrix, so we shim the subset pdfjs needs:
+   construct from a 6-element array and expose the a–f / m** properties. */
+if (typeof (globalThis as Record<string, unknown>).DOMMatrix === 'undefined') {
+  (globalThis as any).DOMMatrix = class DOMMatrix {
+    a: number; b: number; c: number; d: number; e: number; f: number;
+    constructor(init?: string | number[]) {
+      const v = Array.isArray(init) ? init : [1, 0, 0, 1, 0, 0];
+      [this.a, this.b, this.c, this.d, this.e, this.f] = v;
+    }
+    get m11() { return this.a; } get m12() { return this.b; }
+    get m21() { return this.c; } get m22() { return this.d; }
+    get m41() { return this.e; } get m42() { return this.f; }
+    get is2D() { return true; }
+    get isIdentity() { return this.a === 1 && this.b === 0 && this.c === 0 && this.d === 1 && this.e === 0 && this.f === 0; }
+  };
+}
+
 async function loadPdfJs() {
   const mod = await import('pdfjs-dist/legacy/build/pdf.mjs');
   return mod as { getDocument: typeof import('pdfjs-dist').getDocument };
