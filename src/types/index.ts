@@ -67,6 +67,35 @@ export interface GenerateInput {
   roletitlefallback: string;
 }
 
+// ── Resume import (PDF → base template) ────────────────────────
+
+/** One review pass's findings, returned by /api/import-resume. */
+export interface ResumeImportAudit {
+  pass: number;
+  missingFacts: string[];
+  unsupportedFacts: string[];
+  correctionsMade: string[];
+  confidence: number;
+}
+
+export interface ResumeImportReport {
+  pages: number;
+  extractedCharacters: number;
+  reviewPasses: number;
+  audits: ResumeImportAudit[];
+}
+
+/** Final result of a resume import (the {type:'result'} stream event). */
+export interface ResumeImportResponse {
+  firstName: string;
+  lastName: string;
+  baseResumeHtml: string;
+  report: ResumeImportReport;
+}
+
+/** Identifiers for the user-visible import stages, in order. */
+export type ResumeImportStageId = 'reading' | 'extract' | 'audit-1' | 'audit-2' | 'render';
+
 export type JobStatus = 'queued' | 'processing' | 'complete' | 'error';
 
 /** Final pipeline output stored on a completed job. */

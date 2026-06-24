@@ -259,6 +259,9 @@ export async function advanceJob(id: string): Promise<boolean> {
   const job = await getJobRow(id);
   if (!job) throw new Error(`[jobs] not found: ${id}`);
   if (job.status === 'complete' || job.status === 'error') return true;
+  // Resume-import jobs share this table but are driven by driveImportJob — the
+  // generate state machine must never touch them.
+  if ((job.input as { kind?: string } | null)?.kind === 'import') return true;
 
   const stage = job.stage;
   await patchJob(id, { status: 'processing', step: STEP[stage] });

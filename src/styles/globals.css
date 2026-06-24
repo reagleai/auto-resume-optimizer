@@ -664,6 +664,147 @@ p {
   border-left: 3px solid var(--color-success);
 }
 
+/* ── Resume import: live stage stepper ─────────────────────────── */
+.import-stepper {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-offset);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.import-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-1) 0;
+}
+
+.import-step-icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-faint);
+}
+
+.import-step.is-done .import-step-icon {
+  border-color: var(--color-success);
+  background: var(--color-success);
+  color: #fff;
+}
+
+.import-step.is-active .import-step-icon {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.import-step-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.import-step-label {
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+}
+
+.import-step.is-done .import-step-label {
+  color: var(--color-text-muted);
+}
+
+.import-step.is-active .import-step-label {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.import-step-hint {
+  margin-top: 2px;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.import-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Resume import: post-run audit summary ─────────────────────── */
+.import-summary {
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-success);
+  background: var(--color-success-highlight);
+}
+
+.import-summary-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.import-summary-head > svg {
+  flex: none;
+  color: var(--color-success);
+}
+
+.import-confidence {
+  margin-left: auto;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.import-confidence.is-high { color: var(--color-success); }
+.import-confidence.is-mid { color: var(--color-primary); }
+.import-confidence.is-low { color: var(--color-error); }
+
+.import-summary-review {
+  margin-top: var(--space-3);
+}
+
+.import-summary-review-title {
+  margin-bottom: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.import-summary-review ul {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.import-summary-review li {
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.import-review-kind {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
 @media (max-width: 767px) {
   .profile-field-row {
     grid-template-columns: 1fr;

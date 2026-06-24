@@ -55,3 +55,13 @@ export interface ResumeImportResult {
   data: ImportedResumeData;
   audits: ResumeImportAudit[];
 }
+
+/** A stage the import pipeline is entering, reported via onProgress. */
+export type ResumeImportStage = 'extract' | 'audit' | 'render';
+
+export interface ResumeImportProgress {
+  stage: ResumeImportStage;
+  /** Present for the 'audit' stage: which review pass is starting (1-based). */
+  pass?: number;
+  totalPasses: number;
+}

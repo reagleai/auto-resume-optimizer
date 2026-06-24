@@ -7,33 +7,24 @@ import { useProfileQuery, useProfileMutation } from '@/hooks/useProfile'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { extractTextFromPDF } from '@/lib/pdfExtractor'
-import type { ProfileState } from '@/types'
+import { ResumeImportProgress } from '@/components/features/ResumeImportProgress'
+import { runResumeImport } from '@/lib/resumeImport'
+import type { ProfileState, ResumeImportReport, ResumeImportStageId } from '@/types'
 import { DEFAULT_PROFILE } from '@/lib/constants'
 
 const REQUIRED_FIELDS: (keyof ProfileState)[] = ['firstName', 'lastName', 'baseResumeHtml']
 const MAX_RESUME_BYTES = 4 * 1024 * 1024
-
-interface ResumeImportResponse {
-  firstName: string
-  lastName: string
-  baseResumeHtml: string
-  report: {
-    pages: number
-    extractedCharacters: number
-    reviewPasses: number
-  }
-}
 
 export function ProfilePage() {
   const setProfile = useAppStore((s) => s.setProfile)
   const { toast } = useToast()
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [isImporting, setIsImporting] = useState(false)
+  const [importStage, setImportStage] = useState<ResumeImportStageId | null>(null)
   const [importError, setImportError] = useState('')
-  const [importReport, setImportReport] = useState<ResumeImportResponse['report'] | null>(null)
+  const [importReport, setImportReport] = useState<ResumeImportReport | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const isImporting = importStage !== null
 
   // ── Supabase data fetching via React Query ──────────────────
   const {
@@ -123,36 +114,26 @@ export function ProfilePage() {
       return
     }
 
-    setIsImporting(true)
     setImportError('')
     setImportReport(null)
+    setImportStage('reading')
     try {
-      // Step 1: Extract text from PDF in the browser (no server round-trip for parsing)
-      const extracted = await extractTextFromPDF(file)
+      // Browser extracts the text, then the server streams each stage back
+      // (extract → audit 1 → audit 2 → render); setImportStage drives the UI.
+      const result = await runResumeImport(file, setImportStage)
 
-      // Step 2: Send extracted text to server for LLM template mapping + audit
-      const response = await fetch('/api/import-resume', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: extracted.text, pages: extracted.pages }),
-      })
-      const body = await response.json().catch(() => ({})) as Partial<ResumeImportResponse> & { error?: string }
-      if (!response.ok || !body.baseResumeHtml) {
-        throw new Error(body.error || `Import failed with HTTP ${response.status}`)
-      }
-
-      setValue('firstName', body.firstName || '', { shouldDirty: true, shouldValidate: true })
-      setValue('lastName', body.lastName || '', { shouldDirty: true, shouldValidate: true })
-      setValue('baseResumeHtml', body.baseResumeHtml, { shouldDirty: true, shouldValidate: true })
+      setValue('firstName', result.firstName || '', { shouldDirty: true, shouldValidate: true })
+      setValue('lastName', result.lastName || '', { shouldDirty: true, shouldValidate: true })
+      setValue('baseResumeHtml', result.baseResumeHtml, { shouldDirty: true, shouldValidate: true })
       clearErrors(['firstName', 'lastName', 'baseResumeHtml'])
-      setImportReport(body.report ?? null)
+      setImportReport(result.report)
       toast('Resume imported and verified twice. Save your profile to continue.', 'success')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Resume import failed.'
       setImportError(message)
       toast(`Resume import failed: ${message.substring(0, 90)}`, 'error')
     } finally {
-      setIsImporting(false)
+      setImportStage(null)
     }
   }
 
@@ -362,12 +343,8 @@ export function ProfilePage() {
           {importError && (
             <div className="resume-import-message error" role="alert">{importError}</div>
           )}
-          {importReport && (
-            <div className="resume-import-message success" role="status">
-              Imported {importReport.pages} page{importReport.pages === 1 ? '' : 's'} and completed{' '}
-              {importReport.reviewPasses} accuracy checks.
-            </div>
-          )}
+
+          <ResumeImportProgress activeStage={importStage} report={importReport} />
         </div>
 
         {/* Section C: Advanced */}

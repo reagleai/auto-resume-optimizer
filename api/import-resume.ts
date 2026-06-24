@@ -1,9 +1,15 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { importResumeFromText, RESUME_IMPORT_REVIEW_PASSES } from './_lib/resumeImport/pipeline.js';
+// ============================================================================
+// POST /api/import-resume
+// Validates the extracted resume text, creates an import job, kicks off the
+// background driver via waitUntil(), and returns the job id immediately. The
+// frontend polls GET /api/import-jobs/:id for the current stage + final result.
+// ============================================================================
 
-export const config = {
-  maxDuration: 300,
-};
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { waitUntil } from '@vercel/functions';
+import { createImportJob, driveImportJob } from './_lib/resumeImport/jobs.js';
+
+export const config = { maxDuration: 300 };
 
 const MAX_TEXT_LENGTH = 50_000;
 
@@ -14,29 +20,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { text, pages } = req.body ?? {};
-    if (typeof text !== 'string' || !text.trim()) {
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body ?? {};
+    const text = typeof body.text === 'string' ? body.text : '';
+    if (!text.trim()) {
       return res.status(400).json({ error: 'Missing required field: text' });
     }
     if (text.length > MAX_TEXT_LENGTH) {
       return res.status(400).json({ error: 'Extracted resume text is too long.' });
     }
-    const pageCount = typeof pages === 'number' && Number.isFinite(pages) ? pages : 1;
+    const pages = typeof body.pages === 'number' && Number.isFinite(body.pages) ? body.pages : 1;
 
-    const imported = await importResumeFromText(text);
-    return res.status(200).json({
-      firstName: imported.firstName,
-      lastName: imported.lastName,
-      baseResumeHtml: imported.baseResumeHtml,
-      report: {
-        pages: pageCount,
-        extractedCharacters: text.length,
-        reviewPasses: RESUME_IMPORT_REVIEW_PASSES,
-        audits: imported.audits,
-      },
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Resume import failed.';
+    const jobId = await createImportJob(pages);
+
+    // Import runs to completion inside this single invocation.
+    waitUntil(driveImportJob(jobId, text, pages));
+
+    return res.status(202).json({ jobId });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to start resume import.';
     return res.status(400).json({ error: message });
   }
 }

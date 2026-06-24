@@ -11,7 +11,7 @@ import {
   loadBaseResumeTemplate,
   renderResumeTemplate,
 } from './template.js';
-import type { ResumeImportResult } from './types.js';
+import type { ResumeImportProgress, ResumeImportResult } from './types.js';
 
 export const RESUME_IMPORT_REVIEW_PASSES = 2;
 
@@ -118,11 +118,14 @@ export async function importResumeFromText(
   options: {
     complete?: Complete;
     templateHtml?: string;
+    onProgress?: (progress: ResumeImportProgress) => void | Promise<void>;
   } = {},
 ): Promise<ResumeImportResult> {
   const complete = options.complete ?? callLLM;
   const templateHtml = options.templateHtml ?? loadBaseResumeTemplate();
+  const onProgress = options.onProgress;
 
+  await onProgress?.({ stage: 'extract', totalPasses: RESUME_IMPORT_REVIEW_PASSES });
   const initialReply = await complete({
     system: EXTRACTION_SYSTEM,
     user: extractionUser(sourceText),
@@ -135,6 +138,7 @@ export async function importResumeFromText(
 
   const audits = [];
   for (let pass = 1; pass <= RESUME_IMPORT_REVIEW_PASSES; pass++) {
+    await onProgress?.({ stage: 'audit', pass, totalPasses: RESUME_IMPORT_REVIEW_PASSES });
     const renderedHtml = renderResumeTemplate(data, templateHtml);
     const reviewReply = await complete({
       system: REVIEW_SYSTEM,
@@ -156,6 +160,7 @@ export async function importResumeFromText(
     audits.push(normalizeAudit(parsed.audit, pass));
   }
 
+  await onProgress?.({ stage: 'render', totalPasses: RESUME_IMPORT_REVIEW_PASSES });
   const baseResumeHtml = renderResumeTemplate(data, templateHtml);
   const { firstName, lastName } = splitName(data.name);
   return { firstName, lastName, baseResumeHtml, data, audits };
