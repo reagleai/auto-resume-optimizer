@@ -1,11 +1,13 @@
 import { useState, useMemo, useEffect, useRef, type ChangeEvent } from 'react'
 import { useForm } from 'react-hook-form'
-import { CheckCircle, ChevronDown, FileText, Upload } from 'lucide-react'
+import { CheckCircle, ChevronDown, Eye, FileText, Upload } from 'lucide-react'
+import DOMPurify from 'dompurify'
 import { useAppStore } from '@/store/appStore'
 import { useToast } from '@/hooks/useToast'
 import { useProfileQuery, useProfileMutation } from '@/hooks/useProfile'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ResumeImportProgress } from '@/components/features/ResumeImportProgress'
 import { runResumeImport } from '@/lib/resumeImport'
@@ -23,6 +25,7 @@ export function ProfilePage() {
   const [importStage, setImportStage] = useState<ResumeImportStageId | null>(null)
   const [importError, setImportError] = useState('')
   const [importReport, setImportReport] = useState<ResumeImportReport | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const isImporting = importStage !== null
 
@@ -313,6 +316,17 @@ export function ProfilePage() {
             <div className="resume-upload-copy">
               <div className="resume-upload-title">
                 {hasResume ? 'Current resume is ready' : 'Upload your current resume'}
+                {hasResume && (
+                  <button
+                    type="button"
+                    className="resume-preview-btn"
+                    onClick={() => setPreviewOpen(true)}
+                    aria-label="Preview current resume"
+                    title="Preview resume"
+                  >
+                    <Eye size={15} />
+                  </button>
+                )}
               </div>
               <div className="resume-upload-description">
                 PDF only, up to 4 MB. Text is extracted in your browser, then placed into the locked
@@ -420,6 +434,16 @@ export function ProfilePage() {
           </Button>
         </div>
       </form>
+
+      {/* Imported-resume preview */}
+      <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} title="Current resume preview">
+        <iframe
+          title="Current resume preview"
+          srcDoc={DOMPurify.sanitize(watchedValues.baseResumeHtml || '', { WHOLE_DOCUMENT: true })}
+          sandbox=""
+          style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }}
+        />
+      </Modal>
     </div>
   )
 }

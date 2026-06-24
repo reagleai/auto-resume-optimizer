@@ -40,15 +40,17 @@ async function patch(id: string, fields: Record<string, unknown>): Promise<void>
   await supa.from(TABLE).update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id);
 }
 
-export async function createImportJob(pages: number): Promise<string> {
+export async function createImportJob(text: string, pages: number): Promise<string> {
   const supa = getAdminClient();
+  // The source text lives on the row so a stalled job can be re-driven by the
+  // poller without the original request's in-memory state.
   const { data, error } = await supa
     .from(TABLE)
     .insert({
       status: 'queued',
       step: 1,
       stage: 'extract',
-      input: { kind: 'import', pages },
+      input: { kind: 'import', pages, text },
     })
     .select('id')
     .single();
@@ -58,9 +60,24 @@ export async function createImportJob(pages: number): Promise<string> {
 
 /**
  * Run the import to completion, checkpointing the current stage on the job row
- * after each stage so pollers see live progress. Always terminal on return.
+ * after each stage so pollers see live progress. Reads its source text from the
+ * row, so it is safe to (re-)invoke from either the create endpoint or the
+ * poller. Always terminal on return. A re-drive restarts the import from the
+ * beginning (import has no mid-call checkpoint), which is fine on a fast model.
  */
-export async function driveImportJob(id: string, text: string, pages: number): Promise<void> {
+export async function driveImportJob(id: string): Promise<void> {
+  const job = await getImportJob(id);
+  if (!job) return;
+  if (job.status === 'complete' || job.status === 'error') return;
+
+  const input = (job.input ?? {}) as { pages?: number; text?: string };
+  const text = typeof input.text === 'string' ? input.text : '';
+  const pages = typeof input.pages === 'number' ? input.pages : 1;
+  if (!text.trim()) {
+    await patch(id, { status: 'error', error: 'Import job is missing its source text.' });
+    return;
+  }
+
   try {
     await patch(id, { status: 'processing', step: 1, stage: 'extract' });
 

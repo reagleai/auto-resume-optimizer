@@ -627,6 +627,23 @@ p {
   color: var(--color-text);
 }
 
+.resume-preview-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--space-2);
+  padding: 2px;
+  vertical-align: middle;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--transition-interactive);
+}
+
+.resume-preview-btn:hover {
+  color: var(--color-primary);
+}
+
 .resume-upload-description {
   margin-top: var(--space-1);
   font-size: var(--text-xs);

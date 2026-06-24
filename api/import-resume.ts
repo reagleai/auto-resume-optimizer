@@ -30,10 +30,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     const pages = typeof body.pages === 'number' && Number.isFinite(body.pages) ? body.pages : 1;
 
-    const jobId = await createImportJob(pages);
+    const jobId = await createImportJob(text, pages);
 
-    // Import runs to completion inside this single invocation.
-    waitUntil(driveImportJob(jobId, text, pages));
+    // Drive it in the background; a stalled job is re-driven by the poller.
+    waitUntil(driveImportJob(jobId));
 
     return res.status(202).json({ jobId });
   } catch (err) {
