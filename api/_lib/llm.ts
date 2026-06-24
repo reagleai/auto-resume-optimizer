@@ -35,14 +35,19 @@ class OpenRouterProvider implements LLMProvider {
   private readonly apiKey: string;
   private readonly model: string;
   private readonly baseUrl: string;
+  /** Per-request hard timeout. Bounds a hung/slow call so it fails fast and
+   *  retries instead of silently consuming the whole function budget. Tune via
+   *  OPENROUTER_TIMEOUT_MS — free models can be slow, so keep it generous. */
+  private readonly timeoutMs: number;
 
   constructor() {
     const apiKey = process.env.OPENROUTER_API_KEY;
     if (!apiKey) throw new Error('OPENROUTER_API_KEY is not set.');
     this.apiKey = apiKey;
-    // Default to a fast, reliable JSON-capable model; override via env.
+    // Default model is JSON-capable; override via env.
     this.model = process.env.OPENROUTER_MODEL || 'openai/gpt-oss-120b:free';
     this.baseUrl = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
+    this.timeoutMs = Number(process.env.OPENROUTER_TIMEOUT_MS) || 90_000;
   }
 
   async complete(opts: LLMCallOptions): Promise<string> {
@@ -73,17 +78,28 @@ class OpenRouterProvider implements LLMProvider {
     if (opts.maxTokens) body.max_tokens = opts.maxTokens;
     if (useJsonMode) body.response_format = { type: 'json_object' };
 
-    const res = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json',
-        // Optional attribution headers recommended by OpenRouter.
-        'HTTP-Referer': process.env.OPENROUTER_REFERER || 'https://resumatch.app',
-        'X-Title': 'Resumatch',
-      },
-      body: JSON.stringify(body),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          // Optional attribution headers recommended by OpenRouter.
+          'HTTP-Referer': process.env.OPENROUTER_REFERER || 'https://resumatch.app',
+          'X-Title': 'Resumatch',
+        },
+        body: JSON.stringify(body),
+        // Abort a stalled request so callLLM can retry / fail fast instead of
+        // hanging until the serverless function itself times out.
+        signal: AbortSignal.timeout(this.timeoutMs),
+      });
+    } catch (err) {
+      if (err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
+        throw new Error(`OpenRouter request timed out after ${Math.round(this.timeoutMs / 1000)}s`);
+      }
+      throw err;
+    }
 
     if (!res.ok) {
       const text = await res.text().catch(() => '');

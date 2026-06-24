@@ -44,7 +44,9 @@ function stageIdFromJob(stage: string): ResumeImportStageId | null {
 }
 
 const POLL_INTERVAL_MS = 1500
-const MAX_POLL_MS = 240_000 // 4 minutes
+// Poll slightly past the server function's 300s budget so we never declare a
+// timeout while the job is still finishing its last stage server-side.
+const MAX_POLL_MS = 315_000
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 interface ImportJobStatus {
