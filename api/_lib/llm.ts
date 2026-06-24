@@ -45,7 +45,7 @@ class OpenRouterProvider implements LLMProvider {
     if (!apiKey) throw new Error('OPENROUTER_API_KEY is not set.');
     this.apiKey = apiKey;
     // Default model is JSON-capable; override via env.
-    this.model = process.env.OPENROUTER_MODEL || 'openai/gpt-oss-120b:free';
+    this.model = process.env.OPENROUTER_MODEL || 'google/gemini-3.1-flash-lite';
     this.baseUrl = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
     this.timeoutMs = Number(process.env.OPENROUTER_TIMEOUT_MS) || 90_000;
   }
