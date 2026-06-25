@@ -7,6 +7,7 @@
 
 import type { StrategyResult } from './assembleStrategy.js';
 import type { SplitItem, SectionEditObject } from './types.js';
+import { perPointCapFor } from './templateBudget.js';
 
 function pt(v: unknown): string {
   return typeof v === 'string' ? v.trim() : '';
@@ -40,14 +41,38 @@ function skillsPlainLen(skills: Record<string, any>): number {
   }, 0);
 }
 
-function makeCharBudget(section_id: string, currentChars: number, pct: number, upstream: number | null) {
+function perPointClause(section_id: string, cap: number): string {
+  switch (section_id) {
+    case 'summary':
+      return ` Additionally, keep the summary paragraph at or under ${cap} visible characters.`;
+    case 'skills':
+      return ` Additionally, keep each skills line (category + its items) at or under ${cap} visible characters.`;
+    case 'experience':
+    case 'projects':
+    default:
+      return (
+        ` Additionally — this is a hard one-page constraint — NO single bullet/point may exceed ` +
+        `${cap} visible characters. If a rewrite runs longer, tighten or split it; never let one ` +
+        `bullet overflow, or the one-page layout breaks.`
+      );
+  }
+}
+
+function makeCharBudget(
+  section_id: 'summary' | 'experience' | 'projects' | 'skills',
+  currentChars: number,
+  pct: number,
+  upstream: number | null
+) {
   const max = Math.floor(currentChars * (1 + pct / 100));
+  const maxCharsPerPoint = perPointCapFor(section_id);
   return {
     section_id,
     current: currentChars,
     max,
     growthpct: pct,
     upstream_measure: upstream,
+    maxCharsPerPoint,
     instruction:
       `Your rewritten "${section_id}" section must not exceed ${max} visible characters ` +
       `(baseline: ${currentChars} chars, allowed growth: ${pct}%). ` +
@@ -55,7 +80,8 @@ function makeCharBudget(section_id: string, currentChars: number, pct: number, u
       `If you cannot fit all edits within the budget, prioritise: ` +
       `(1) shift/reframe bullets over adding new ones, ` +
       `(2) keyword insertions inline over appending new sentences, ` +
-      `(3) trim the lowest-priority bullets last.`,
+      `(3) trim the lowest-priority bullets last.` +
+      perPointClause(section_id, maxCharsPerPoint),
   };
 }
 

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { ProfileCard } from '@/components/features/ProfileCard'
 import { ProfileGuard } from '@/components/features/ProfileGuard'
 import { ResumePreview } from '@/components/features/ResumePreview'
+import { TemplateGallery } from '@/components/features/TemplateGallery'
 
 export function GeneratorPage() {
   const isProfileComplete = useAppStore((s) => s.isProfileComplete)
@@ -108,6 +109,9 @@ export function GeneratorPage() {
         >
           {generator.status === 'loading' ? 'Generating…' : 'Generate Tailored Resume'}
         </Button>
+
+        {/* Resume template gallery */}
+        <TemplateGallery />
       </div>
 
       {/* Right Panel: Preview */}

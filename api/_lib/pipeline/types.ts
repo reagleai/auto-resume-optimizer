@@ -113,6 +113,8 @@ export interface SectionEditObject {
     max: number;
     growthpct: number;
     upstream_measure: number | null;
+    /** Template-derived hard ceiling for a single point/bullet/line. */
+    maxCharsPerPoint: number;
     instruction: string;
   };
   sectionmeta: any;

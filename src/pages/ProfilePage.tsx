@@ -26,6 +26,10 @@ export function ProfilePage() {
   const [importError, setImportError] = useState('')
   const [importReport, setImportReport] = useState<ResumeImportReport | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
+  // Object URL of the PDF the user uploaded THIS session, so the eye icon can
+  // show their exact original resume. Null after a reload (object URLs don't
+  // persist) — the preview then falls back to the structured HTML.
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const isImporting = importStage !== null
 
@@ -61,6 +65,12 @@ export function ProfilePage() {
       setProfile(remoteProfile)
     }
   }, [remoteProfile, reset, setProfile])
+
+  // Revoke the previous uploaded-PDF object URL when it changes or on unmount.
+  useEffect(() => {
+    if (!pdfPreviewUrl) return
+    return () => URL.revokeObjectURL(pdfPreviewUrl)
+  }, [pdfPreviewUrl])
 
   const watchedValues = watch()
 
@@ -130,6 +140,9 @@ export function ProfilePage() {
       setValue('baseResumeHtml', result.baseResumeHtml, { shouldDirty: true, shouldValidate: true })
       clearErrors(['firstName', 'lastName', 'baseResumeHtml'])
       setImportReport(result.report)
+      // Keep the exact uploaded PDF for the eye-icon preview (old URL is
+      // revoked by the cleanup effect when this value changes).
+      setPdfPreviewUrl(URL.createObjectURL(file))
       toast('Resume imported and verified twice. Save your profile to continue.', 'success')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Resume import failed.'
@@ -435,14 +448,27 @@ export function ProfilePage() {
         </div>
       </form>
 
-      {/* Imported-resume preview */}
-      <Modal open={previewOpen} onClose={() => setPreviewOpen(false)} title="Current resume preview">
-        <iframe
-          title="Current resume preview"
-          srcDoc={DOMPurify.sanitize(watchedValues.baseResumeHtml || '', { WHOLE_DOCUMENT: true })}
-          sandbox=""
-          style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }}
-        />
+      {/* Resume preview — the exact uploaded PDF when available this session,
+          otherwise the structured base_resume.html result. */}
+      <Modal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title={pdfPreviewUrl ? 'Your uploaded resume (original PDF)' : 'Current resume preview'}
+      >
+        {pdfPreviewUrl ? (
+          <iframe
+            title="Your uploaded resume"
+            src={pdfPreviewUrl}
+            style={{ width: '100%', height: '100%', border: 'none', background: '#525659' }}
+          />
+        ) : (
+          <iframe
+            title="Current resume preview"
+            srcDoc={DOMPurify.sanitize(watchedValues.baseResumeHtml || '', { WHOLE_DOCUMENT: true })}
+            sandbox=""
+            style={{ width: '100%', height: '100%', border: 'none', background: '#fff' }}
+          />
+        )}
       </Modal>
     </div>
   )

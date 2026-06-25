@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Resume — Compact</title>
+  <!--
+    Compact template. Same element/class skeleton as base_resume.html so the
+    tailoring pipeline stays compatible — denser serif styling that fits more
+    content on one page. Content is neutral placeholder (no PII).
+  -->
+  <style>
+    :root {
+      --text: #111;
+      --muted: #555;
+      --line: #999;
+      --paper: #fff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--text);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      max-height: 297mm;
+      overflow: hidden;
+      background: var(--paper);
+      padding: 12px 26px 8px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .contact {
+      margin-top: 3px;
+      font-size: 11.5px;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+      justify-content: center;
+    }
+
+    .contact>*+*::before {
+      content: "  |  ";
+      color: var(--line);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .section { margin-top: 7px; }
+
+    h2 {
+      margin: 0 0 3px;
+      font-size: 13px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      font-weight: 700;
+      border-bottom: 1px solid var(--text);
+      padding-bottom: 1px;
+    }
+
+    .summary,
+    .skill-line {
+      margin: 0 0 2px;
+      font-size: 11.5px;
+      line-height: 1.25;
+    }
+
+    .entry { margin-bottom: 4px; }
+
+    .entry-head,
+    .edu-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .org {
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .role {
+      margin-top: 0;
+      font-size: 11.5px;
+      font-weight: 700;
+      font-style: italic;
+    }
+
+    .meta {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    ul { margin: 2px 0 0 16px; padding: 0; }
+
+    li {
+      margin: 0 0 1px;
+      font-size: 11.5px;
+      line-height: 1.2;
+    }
+
+    .pipe { color: var(--line); font-weight: 400; }
+
+    .edu-row { margin-bottom: 2px; }
+
+    @media print {
+      body { background: #fff; }
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        max-height: 297mm;
+        padding: 12px 26px 8px;
+        box-shadow: none;
+        margin: 0;
+      }
+      @page { size: A4; margin: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header>
+      <h1>ALEX MORGAN</h1>
+      <div class="contact">
+        <span>Product Manager</span>
+        <span><a href="#">LinkedIn</a></span>
+        <span><a href="#">Portfolio</a></span>
+        <span>alex.morgan@email.com</span>
+        <span>+1 555 0100</span>
+      </div>
+    </header>
+
+    <section class="section">
+      <h2>Summary</h2>
+      <p class="summary">Product manager with 6+ years shipping data and growth products across B2B SaaS, pairing rigorous discovery with clean execution to move activation, retention, and revenue metrics.</p>
+    </section>
+
+    <section class="section">
+      <h2>Experience</h2>
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            <div class="org">Northwind Analytics</div>
+            <div class="role">Senior Product Manager</div>
+          </div>
+          <div class="meta">
+            <div>Remote</div>
+            <div>2022 – Present</div>
+          </div>
+        </div>
+        <ul>
+          <li>Led a 5-person squad to launch a self-serve analytics suite, lifting activation 31% through an onboarding redesign and in-product guidance.</li>
+          <li>Defined the experimentation framework adopted across four teams, standardising how bets are scoped, measured, and shipped.</li>
+          <li>Partnered with sales engineering to cut enterprise onboarding from six weeks to eleven days via a guided setup flow.</li>
+        </ul>
+      </article>
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            <div class="org">Brightlane</div>
+            <div class="role">Product Manager</div>
+          </div>
+          <div class="meta">
+            <div>Austin, TX</div>
+            <div>2019 – 2022</div>
+          </div>
+        </div>
+        <ul>
+          <li>Owned the billing and plans surface, growing net revenue retention from 104% to 118% with usage-based pricing.</li>
+          <li>Shipped a connector marketplace from zero to 80+ integrations, opening a new mid-market segment.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section">
+      <h2>Projects</h2>
+      <article class="entry">
+        <div class="entry-head">
+          <div>
+            <div class="org">OpenMetrics <span class="pipe">|</span> <a href="#">View Project</a></div>
+          </div>
+          <div class="meta">2023</div>
+        </div>
+        <ul>
+          <li>Built an open-source product-metrics dashboard with templated funnels and cohort views; reached 1.4k GitHub stars.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="section">
+      <h2>Skills</h2>
+      <p class="skill-line"><strong>Product:</strong> Discovery, Roadmapping, A/B Testing, PRDs, GTM, Pricing</p>
+      <p class="skill-line"><strong>Analytics:</strong> SQL, Amplitude, Looker, Metric Design</p>
+      <p class="skill-line"><strong>Tools:</strong> Jira, Figma, Notion, Linear</p>
+    </section>
+
+    <section class="section">
+      <h2>Education</h2>
+      <article class="edu-row">
+        <div><strong>State University</strong> <span class="pipe">|</span> B.S. Computer Science</div>
+        <div class="meta">2015 – 2019</div>
+      </article>
+    </section>
+  </main>
+</body>
+
+</html>
