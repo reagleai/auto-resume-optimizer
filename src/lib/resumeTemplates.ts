@@ -62,37 +62,21 @@ function measureBudgets(html: string): TemplateBudgets {
   }
 }
 
-/** Remove personally identifiable info (name + contact block) for preview. */
-export function stripResumePII(html: string): string {
-  return html
-    .replace(/(<h1[^>]*>)[\s\S]*?(<\/h1>)/i, '$1YOUR NAME$2')
-    .replace(
-      /(<div class="contact">)[\s\S]*?(<\/div>)/i,
-      `$1
-        <span>Your Role @ Company</span>
-        <span><a href="#">LinkedIn</a></span>
-        <span><a href="#">Portfolio</a></span>
-        <span>you@email.com</span>
-        <span>+00 00000 00000</span>
-      $2`
-    )
-}
-
 export const RESUME_TEMPLATES: ResumeTemplate[] = [
   {
     id: 'base',
     name: 'Classic',
     description:
-      'The default template the generator uses. Hand-tuned to fill exactly one A4 page, with per-point character limits enforced so it never overflows.',
+      'The default template the generator uses. Hand-tuned to fill exactly one A4 page, with per-point character limits enforced so it never overflows. All sample content is generic.',
     status: 'active',
-    previewHtml: stripResumePII(baseRaw),
+    previewHtml: baseRaw,
     budgets: measureBudgets(baseRaw),
   },
   {
     id: 'modern',
     name: 'Modern',
     description:
-      'Accent-coloured section headers and a cleaner sans-serif layout. Same one-page structure as Classic.',
+      'Accent-coloured section headers and a cleaner sans-serif layout. Generic sample content, sized to fill a single A4 page like Classic.',
     status: 'preview',
     previewHtml: modernRaw,
   },
@@ -100,7 +84,7 @@ export const RESUME_TEMPLATES: ResumeTemplate[] = [
     id: 'compact',
     name: 'Compact',
     description:
-      'A denser serif layout that fits more content while staying on a single page. Same one-page structure as Classic.',
+      'A denser serif layout that packs more roles and detail onto one page. Generic sample content, sized to fill a single A4 page.',
     status: 'preview',
     previewHtml: compactRaw,
   },
