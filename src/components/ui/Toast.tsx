@@ -67,10 +67,9 @@ export function ToastContainer() {
     <div
       role="status"
       aria-live="polite"
+      className="toast-container"
       style={{
         position: 'fixed',
-        bottom: 'var(--space-6)',
-        right: 'var(--space-6)',
         zIndex: 9999,
         display: 'flex',
         flexDirection: 'column-reverse',

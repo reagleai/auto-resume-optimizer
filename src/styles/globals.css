@@ -264,6 +264,22 @@ p {
   }
 }
 
+/* Toast stack: bottom-right on desktop; lifted clear of the mobile tab bar */
+.toast-container {
+  bottom: var(--space-6);
+  right: var(--space-6);
+  left: auto;
+}
+
+@media (max-width: 767px) {
+  .toast-container {
+    right: var(--space-3);
+    left: var(--space-3);
+    bottom: calc(var(--mobile-tabbar-height) + var(--space-3) + env(safe-area-inset-bottom, 0px));
+    align-items: stretch;
+  }
+}
+
 /* Spinner rotation */
 @keyframes spin {
   from {
@@ -525,6 +541,18 @@ p {
 .sidebar-nav-item:hover {
   background: var(--color-primary-highlight) !important;
   color: var(--color-primary) !important;
+}
+
+/* History row icon-buttons: view / download / delete.
+   These declare a color/background transition inline but had no hover target. */
+.history-action-btn:hover:not(:disabled) {
+  background: var(--color-primary-highlight);
+  color: var(--color-primary);
+}
+
+.history-action-btn[aria-label="Delete resume"]:hover:not(:disabled) {
+  background: var(--color-error-highlight);
+  color: var(--color-error);
 }
 
 /* ════════════════════════════════════════════════════════════
