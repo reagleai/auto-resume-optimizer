@@ -17,9 +17,11 @@
   --color-border: rgba(62, 204, 144, 0.15);
 
   /* === TEXT === */
+  /* muted/faint raised to meet WCAG 2.2 AA (>=4.5:1) on bg and card surfaces
+     while preserving the green-grey hue and the text > muted > faint hierarchy. */
   --color-text: #E8ECE9;
-  --color-text-muted: #6B8078;
-  --color-text-faint: #4a5e55;
+  --color-text-muted: #82948B;
+  --color-text-faint: #7A8D83;
   --color-text-inverse: #0B1215;
 
   /* === PRIMARY (Green Accent) === */
@@ -117,7 +119,7 @@
   /* === TEXT === */
   --color-text: #334155;
   --color-text-muted: #64748B;
-  --color-text-faint: #94A3B8;
+  --color-text-faint: #637088;
   --color-text-inverse: #F8FAFC;
 
   /* === PRIMARY (Slightly adjusted green for light mode readability) === */
@@ -161,7 +163,7 @@
 
     --color-text: #334155;
     --color-text-muted: #64748B;
-    --color-text-faint: #94A3B8;
+    --color-text-faint: #637088;
     --color-text-inverse: #F8FAFC;
 
     --color-primary: #22C55E;
