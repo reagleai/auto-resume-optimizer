@@ -20,7 +20,8 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  scroll-padding-top: var(--space-16);
+  /* Clear the fixed 72px nav so anchor targets aren't hidden underneath it. */
+  scroll-padding-top: calc(var(--topbar-height) + var(--space-2));
 }
 
 html,
@@ -261,6 +262,22 @@ p {
   to {
     transform: translateY(8px) scale(0.96);
     opacity: 0;
+  }
+}
+
+/* Toast stack: bottom-right on desktop; lifted clear of the mobile tab bar */
+.toast-container {
+  bottom: var(--space-6);
+  right: var(--space-6);
+  left: auto;
+}
+
+@media (max-width: 767px) {
+  .toast-container {
+    right: var(--space-3);
+    left: var(--space-3);
+    bottom: calc(var(--mobile-tabbar-height) + var(--space-3) + env(safe-area-inset-bottom, 0px));
+    align-items: stretch;
   }
 }
 
@@ -527,6 +544,18 @@ p {
   color: var(--color-primary) !important;
 }
 
+/* History row icon-buttons: view / download / delete.
+   These declare a color/background transition inline but had no hover target. */
+.history-action-btn:hover:not(:disabled) {
+  background: var(--color-primary-highlight);
+  color: var(--color-primary);
+}
+
+.history-action-btn[aria-label="Delete resume"]:hover:not(:disabled) {
+  background: var(--color-error-highlight);
+  color: var(--color-error);
+}
+
 /* ════════════════════════════════════════════════════════════
    GENERATOR PAGE LAYOUT
    ════════════════════════════════════════════════════════════ */
@@ -572,6 +601,20 @@ p {
   .gen-right {
     min-height: 60vh;
     padding-bottom: var(--mobile-tabbar-height);
+  }
+}
+
+/* Tablet band: keep two columns but give the preview room to breathe
+   (the fixed 420px rail + 40px padding squeezes the preview on iPad portrait). */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .gen-left {
+    width: 340px;
+    min-width: 340px;
+    padding: var(--space-6);
+  }
+
+  .gen-right {
+    padding: var(--space-4);
   }
 }
 

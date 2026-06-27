@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useId, useRef, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 
 interface ModalProps {
@@ -8,15 +8,66 @@ interface ModalProps {
   children: ReactNode
 }
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])'
+
 export function Modal({ open, onClose, title, children }: ModalProps) {
+  const titleId = useId()
+  const panelRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  // Element focused before the dialog opened, so we can restore it on close.
+  const previouslyFocused = useRef<HTMLElement | null>(null)
+  // Keep the latest onClose without re-running the focus effect when the
+  // parent passes a new inline handler identity on every render.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
+  // Focus management + key handling. Keyed on `open` only so focus isn't
+  // stolen back to the trigger on unrelated parent re-renders.
   useEffect(() => {
     if (!open) return
+
+    previouslyFocused.current = document.activeElement as HTMLElement | null
+    // Move focus into the dialog (the close button is always present).
+    closeRef.current?.focus()
+
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        onCloseRef.current()
+        return
+      }
+      if (e.key !== 'Tab') return
+
+      // Trap focus within the dialog panel.
+      const panel = panelRef.current
+      if (!panel) return
+      const focusables = Array.from(
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE)
+      ).filter((el) => el.offsetParent !== null || el === document.activeElement)
+      if (focusables.length === 0) {
+        e.preventDefault()
+        closeRef.current?.focus()
+        return
+      }
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      const active = document.activeElement
+      if (e.shiftKey && (active === first || !panel.contains(active))) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
+
     document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [open, onClose])
+    return () => {
+      document.removeEventListener('keydown', handleKey)
+      // Restore focus to the trigger when the dialog closes/unmounts.
+      previouslyFocused.current?.focus?.()
+    }
+  }, [open])
 
   if (!open) return null
 
@@ -36,6 +87,10 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         style={{
           width: '100%',
           maxWidth: '800px',
@@ -57,27 +112,34 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
             flexShrink: 0,
           }}
         >
-          <span style={{
-            fontSize: 'var(--text-sm)',
-            fontWeight: 500,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}>
+          <h2
+            id={titleId}
+            style={{
+              fontSize: 'var(--text-sm)',
+              fontWeight: 500,
+              fontFamily: 'var(--font-body)',
+              lineHeight: 1.4,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {title}
-          </span>
+          </h2>
           <button
+            ref={closeRef}
             onClick={onClose}
-            aria-label="Close preview"
+            aria-label="Close dialog"
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               width: '44px',
               height: '44px',
+              flexShrink: 0,
               borderRadius: 'var(--radius-md)',
               color: 'var(--color-text-muted)',
-              transition: 'background var(--transition-interactive)',
+              transition: 'background var(--transition-interactive), color var(--transition-interactive)',
             }}
           >
             <X size={20} />

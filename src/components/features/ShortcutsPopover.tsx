@@ -16,8 +16,18 @@ export function ShortcutsPopover() {
         setOpen(false)
       }
     }
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        btnRef.current?.focus()
+      }
+    }
     document.addEventListener('click', handleClick)
-    return () => document.removeEventListener('click', handleClick)
+    document.addEventListener('keydown', handleKey)
+    return () => {
+      document.removeEventListener('click', handleClick)
+      document.removeEventListener('keydown', handleKey)
+    }
   }, [open])
 
   return (
@@ -26,6 +36,9 @@ export function ShortcutsPopover() {
         ref={btnRef}
         onClick={() => setOpen((v) => !v)}
         aria-label="Keyboard shortcuts"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        aria-controls="shortcuts-popover"
         title="Keyboard shortcuts"
         style={{
           display: 'flex',
@@ -47,6 +60,9 @@ export function ShortcutsPopover() {
       {open && (
         <div
           ref={popoverRef}
+          id="shortcuts-popover"
+          role="dialog"
+          aria-label="Keyboard shortcuts"
           style={{
             position: 'absolute',
             top: 'calc(100% + 4px)',
