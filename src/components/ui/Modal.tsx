@@ -17,8 +17,13 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
   const closeRef = useRef<HTMLButtonElement>(null)
   // Element focused before the dialog opened, so we can restore it on close.
   const previouslyFocused = useRef<HTMLElement | null>(null)
+  // Keep the latest onClose without re-running the focus effect when the
+  // parent passes a new inline handler identity on every render.
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
-  // Focus management + key handling. Runs only while open.
+  // Focus management + key handling. Keyed on `open` only so focus isn't
+  // stolen back to the trigger on unrelated parent re-renders.
   useEffect(() => {
     if (!open) return
 
@@ -28,7 +33,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose()
+        onCloseRef.current()
         return
       }
       if (e.key !== 'Tab') return
@@ -62,7 +67,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       // Restore focus to the trigger when the dialog closes/unmounts.
       previouslyFocused.current?.focus?.()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
