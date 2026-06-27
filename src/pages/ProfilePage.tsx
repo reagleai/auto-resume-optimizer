@@ -227,13 +227,20 @@ export function ProfilePage() {
 
         {/* Completeness progress */}
         <div style={{ marginTop: 'var(--space-4)' }}>
-          <div style={{
-            width: '100%',
-            height: '4px',
-            background: 'var(--color-divider)',
-            borderRadius: 'var(--radius-full)',
-            overflow: 'hidden',
-          }}>
+          <div
+            role="progressbar"
+            aria-valuenow={completeness}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Profile completeness"
+            style={{
+              width: '100%',
+              height: '4px',
+              background: 'var(--color-divider)',
+              borderRadius: 'var(--radius-full)',
+              overflow: 'hidden',
+            }}
+          >
             <div style={{
               height: '100%',
               width: `${completeness}%`,
@@ -379,6 +386,8 @@ export function ProfilePage() {
           <button
             type="button"
             onClick={() => setAdvancedOpen((v) => !v)}
+            aria-expanded={advancedOpen}
+            aria-controls="advanced-settings-panel"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -395,6 +404,7 @@ export function ProfilePage() {
             <span>Advanced Settings</span>
             <ChevronDown
               size={16}
+              aria-hidden="true"
               style={{
                 transition: 'transform 0.3s ease',
                 transform: advancedOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -402,11 +412,17 @@ export function ProfilePage() {
             />
           </button>
 
-          <div style={{
-            maxHeight: advancedOpen ? '400px' : '0',
-            overflow: 'hidden',
-            transition: 'max-height 0.3s ease',
-          }}>
+          <div
+            id="advanced-settings-panel"
+            role="region"
+            aria-label="Advanced settings"
+            inert={!advancedOpen}
+            style={{
+              maxHeight: advancedOpen ? '640px' : '0',
+              overflow: 'hidden',
+              transition: 'max-height 0.3s ease',
+            }}
+          >
             <div style={{ paddingTop: 'var(--space-4)' }}>
               <div className="profile-field-row">
                 <Input

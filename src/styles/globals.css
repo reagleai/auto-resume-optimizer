@@ -603,6 +603,20 @@ p {
   }
 }
 
+/* Tablet band: keep two columns but give the preview room to breathe
+   (the fixed 420px rail + 40px padding squeezes the preview on iPad portrait). */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .gen-left {
+    width: 340px;
+    min-width: 340px;
+    padding: var(--space-6);
+  }
+
+  .gen-right {
+    padding: var(--space-4);
+  }
+}
+
 /* ════════════════════════════════════════════════════════════
    PROFILE PAGE
    ════════════════════════════════════════════════════════════ */

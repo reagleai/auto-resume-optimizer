@@ -178,6 +178,9 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
                     <input
                       type="email"
                       placeholder="your@email.com"
+                      aria-label="Email address"
+                      aria-invalid={!!emailError}
+                      aria-describedby={emailError ? 'waitlist-email-error' : undefined}
                       value={email}
                       onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError('') }}
                       style={{
@@ -194,7 +197,7 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
 
                     {/* Email error */}
                     {emailError && (
-                      <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-error)', marginBottom: 'var(--space-3)', animation: 'pageIn 0.2s ease' }}>
+                      <div id="waitlist-email-error" role="alert" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-error)', marginBottom: 'var(--space-3)', animation: 'pageIn 0.2s ease' }}>
                         {emailError}
                       </div>
                     )}
@@ -321,6 +324,9 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
                     onChange={(e) => { setPassword(e.target.value); if (error && cooldownRemaining <= 0) setError('') }}
                     onKeyDown={handleKeyDown}
                     placeholder="Enter password"
+                    aria-label="Password"
+                    aria-invalid={!!error}
+                    aria-describedby={error ? 'access-password-error' : undefined}
                     autoFocus
                     disabled={isValidating || isLockedOut}
                     style={{
@@ -341,7 +347,7 @@ export function AccessSection({ onUnlock }: AccessSectionProps) {
 
                 {/* Error */}
                 {error && (
-                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-error)', marginBottom: 'var(--space-3)', animation: 'pageIn 0.2s ease' }}>
+                  <div id="access-password-error" role="alert" style={{ fontSize: 'var(--text-sm)', color: 'var(--color-error)', marginBottom: 'var(--space-3)', animation: 'pageIn 0.2s ease' }}>
                     {error}
                   </div>
                 )}
