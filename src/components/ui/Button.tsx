@@ -27,10 +27,11 @@ const sizeStyles: Record<ButtonSize, string> = {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'md', loading, leftIcon, rightIcon, children, className, disabled, style, ...props }, ref) => {
+  ({ variant = 'primary', size = 'md', type = 'button', loading, leftIcon, rightIcon, children, className, disabled, style, ...props }, ref) => {
     return (
       <button
         ref={ref}
+        type={type}
         className={cn('btn-base', variantStyles[variant], sizeStyles[size], className)}
         disabled={disabled || loading}
         style={style}

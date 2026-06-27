@@ -20,7 +20,8 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  scroll-padding-top: var(--space-16);
+  /* Clear the fixed 72px nav so anchor targets aren't hidden underneath it. */
+  scroll-padding-top: calc(var(--topbar-height) + var(--space-2));
 }
 
 html,
